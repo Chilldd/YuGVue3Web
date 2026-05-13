@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+
+/* ========== 品牌色 CSS 变量 ========== */
+:root {
+  /* 主色 */
+  --brand-dark: #1A1A1D;
+  --brand-pink: #E6397C;
+  --brand-pink-light: #ff5b99;
+  --brand-pink-dark: #c92a68;
+
+  /* 中性色（浅色主题） */
+  --gray-bg: #f5f5f5;
+  --gray-card: #ffffff;
+  --gray-border: #e8e8ef;
+  --gray-text: #888888;
+  --gray-light: #b0b0b8;
+
+  /* 语义色 */
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+
+  /* 暗黑主题 */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  --text-quaternary: rgba(255, 255, 255, 0.35);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.08);
+  --bg-glass: rgba(255, 255, 255, 0.03);
+  --bg-glass-hover: rgba(255, 255, 255, 0.06);
+
+  /* 方法标签色 */
+  --method-get: #34d399;
+  --method-post: #60a5fa;
+  --method-put: #fbbf24;
+  --method-delete: #f87171;
+  --method-patch: #a78bfa;
+
+  /* 状态标签色 */
+  --status-active: #34d399;
+  --status-inactive: #f87171;
+  --action-edit: rgba(255, 255, 255, 0.5);
+  --action-warn: #fbbf24;
+  --action-danger: #f87171;
+}
+
+/* ========== Tailwind 主题扩展 ========== */
+@theme {
+  --color-brand-dark: #1A1A1D;
+  --color-brand-pink: #E6397C;
+  --color-brand-pink-light: #ff5b99;
+  --color-gray-bg: #f5f5f5;
+}
+
+/* ========== 全局样式 ========== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--gray-bg);
+}
+
+/* ========== 通用卡片 ========== */
+.card-base {
+  border-radius: 14px;
+  background: var(--gray-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.card-base:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ========== 通用筛选器 ========== */
+.filter-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+.filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 1px;
+}
+
+/* ========== 通用表格渲染标签 ========== */
+.method-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.method-tag.method-get { background: color-mix(in srgb, var(--method-get) 13%, transparent); color: var(--method-get); }
+.method-tag.method-post { background: color-mix(in srgb, var(--method-post) 13%, transparent); color: var(--method-post); }
+.method-tag.method-put { background: color-mix(in srgb, var(--method-put) 13%, transparent); color: var(--method-put); }
+.method-tag.method-delete { background: color-mix(in srgb, var(--method-delete) 13%, transparent); color: var(--method-delete); }
+.method-tag.method-patch { background: color-mix(in srgb, var(--method-patch) 13%, transparent); color: var(--method-patch); }
+.method-tag.method-none { background: var(--bg-glass); color: var(--text-quaternary); }
+
+.status-badge {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.status-badge.status-active { background: color-mix(in srgb, var(--status-active) 12%, transparent); color: var(--status-active); }
+.status-badge.status-inactive { background: color-mix(in srgb, var(--status-inactive) 10%, transparent); color: var(--status-inactive); }
+
+.type-tag {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+}
+
+.code-cell {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.path-cell {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--text-quaternary);
+}
+
+/* ========== 表格操作按钮 ========== */
+.action-btn {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--action-edit);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.action-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass-hover);
+}
+.action-btn--warn { color: var(--action-warn); }
+.action-btn--warn:hover { background: rgba(251, 191, 36, 0.1); }
+.action-btn--success { color: var(--status-active); }
+.action-btn--success:hover { background: rgba(52, 211, 153, 0.1); }
+.action-btn--danger { color: var(--action-danger); }
+.action-btn--danger:hover { background: rgba(248, 113, 113, 0.1); }
