@@ -66,9 +66,10 @@ const treeOptions = computed<ResourceTreeOption[]>(() => toTreeOptions(treeData.
 const flatResources = computed(() => flattenTree(treeData.value))
 
 async function loadTree() {
-  const params: { type?: string; activeOnly?: boolean } = {}
+  const params: { type?: string; status?: number } = {}
   if (filters.value.type) params.type = filters.value.type
-  if (filters.value.status === 'Active') params.activeOnly = true
+  if (filters.value.status === 'Active') params.status = 0
+  else if (filters.value.status === 'Disabled') params.status = 1
   await fetchTree(params)
   expandedKeys.value = collectKeys(treeOptions.value)
 }

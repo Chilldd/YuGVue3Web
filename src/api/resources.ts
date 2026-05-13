@@ -97,7 +97,7 @@ export interface ResourceResult {
 // ---- API functions ----
 
 /** 获取资源树 */
-export function getResourceTree(params?: { type?: string; activeOnly?: boolean }) {
+export function getResourceTree(params?: { type?: string; status?: number }) {
   return request.get<GetResourceTreeResult, GetResourceTreeResult>(
     '/api/management/resources/tree',
     { params },

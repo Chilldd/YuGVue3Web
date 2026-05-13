@@ -70,7 +70,7 @@ export function useResource() {
     }
   }
 
-  async function fetchTree(params?: { type?: string; activeOnly?: boolean }) {
+  async function fetchTree(params?: { type?: string; status?: number }) {
     treeLoading.value = true
     treeError.value = false
     try {
