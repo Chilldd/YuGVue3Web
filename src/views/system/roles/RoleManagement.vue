@@ -5,6 +5,7 @@ import type { DataTableColumn } from 'naive-ui'
 import type { RoleListItem } from '@/api/role'
 import { useRole } from '@/composables/useRole'
 import CrudTable from '@/components/CrudTable.vue'
+import { usePermission } from '@/composables/usePermission'
 import RoleFormModal from './RoleFormModal.vue'
 import RoleResourceModal from './RoleResourceModal.vue'
 
@@ -16,6 +17,8 @@ const {
   toggleStatus,
   confirmDelete,
 } = useRole()
+
+const { hasPermission } = usePermission()
 
 const page = ref(1)
 const pageSize = ref(10)
@@ -65,7 +68,10 @@ async function handleToggleStatus(row: RoleListItem) {
 }
 
 const columns: DataTableColumn<RoleListItem>[] = [
-  { type: 'selection' },
+  {
+    type: 'selection',
+    disabled(row: RoleListItem) { return row.code === 'superadmin' },
+  },
   {
     title: '名称', key: 'name', ellipsis: true, minWidth: 140,
     render(row) { return h('span', { class: 'cell-name' }, row.name || '—') },
@@ -96,18 +102,24 @@ const columns: DataTableColumn<RoleListItem>[] = [
   {
     title: '操作', key: 'actions', width: 300, fixed: 'right',
     render(row) {
+      if (row.code === 'superadmin') {
+        return h('span', { class: 'superadmin-tag' }, '内置角色')
+      }
       const btn = (label: string, cls: string, onClick: () => void) =>
         h('a', { class: ['action-btn', cls], onClick }, label)
-      const btns = [
-        btn('编辑', 'action-btn--edit', () => openEditModal(row)),
-        btn('分配资源', 'action-btn--resource', () => openResourceModal(row)),
-      ]
-      if (row.status === 'Active') {
-        btns.push(btn('禁用', 'action-btn--warn', () => handleToggleStatus(row)))
-      } else {
-        btns.push(btn('启用', 'action-btn--success', () => handleToggleStatus(row)))
+      const btns = []
+      if (hasPermission('role:update')) {
+        btns.push(btn('编辑', 'action-btn--edit', () => openEditModal(row)))
       }
-      btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
+      if (hasPermission('role:assignresources')) {
+        btns.push(btn('分配资源', 'action-btn--resource', () => openResourceModal(row)))
+      }
+      if ((row.status === 'Active' && hasPermission('role:disable')) || (row.status !== 'Active' && hasPermission('role:activate'))) {
+        btns.push(btn(row.status === 'Active' ? '禁用' : '启用', row.status === 'Active' ? 'action-btn--warn' : 'action-btn--success', () => handleToggleStatus(row)))
+      }
+      if (hasPermission('role:delete')) {
+        btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
+      }
       return h('div', { class: 'action-group' }, btns)
     },
   },
@@ -131,7 +143,7 @@ onMounted(loadList)
             </template>
             刷新
           </n-button>
-          <n-button type="primary" size="small" @click="openCreateModal">
+          <n-button type="primary" size="small" @click="openCreateModal" v-if="hasPermission('role:create')">
             <template #icon>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </template>

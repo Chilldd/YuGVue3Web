@@ -1,54 +1,97 @@
 <script setup lang="ts">
-import { h, type Component } from 'vue'
+import { computed, h, type Component } from 'vue'
 import { NIcon, NMenu } from 'naive-ui'
+import type { MenuOption } from 'naive-ui'
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useAppStore } from '@/stores/app'
+import type { MenuTreeItem } from '@/api/permission'
 import {
   GridOutline,
+  ShieldOutline,
   PeopleOutline,
   SettingsOutline,
-  ShieldOutline,
+  PersonOutline,
+  KeyOutline,
+  AppsOutline,
+  LayersOutline,
+  ListOutline,
+  FolderOutline,
+  DocumentOutline,
+  CodeSlashOutline,
+  ServerOutline,
+  CloudOutline,
+  GlobeOutline,
+  HomeOutline,
+  AnalyticsOutline,
+  BarChartOutline,
+  PieChartOutline,
+  MenuOutline,
+  LogOutOutline,
 } from '@vicons/ionicons5'
-import { useAppStore } from '@/stores/app'
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 const appStore = useAppStore()
+
+const ICON_MAP: Record<string, Component> = {
+  GridOutline,
+  ShieldOutline,
+  PeopleOutline,
+  SettingsOutline,
+  PersonOutline,
+  KeyOutline,
+  AppsOutline,
+  LayersOutline,
+  ListOutline,
+  FolderOutline,
+  DocumentOutline,
+  CodeSlashOutline,
+  ServerOutline,
+  CloudOutline,
+  GlobeOutline,
+  HomeOutline,
+  AnalyticsOutline,
+  BarChartOutline,
+  PieChartOutline,
+  MenuOutline,
+  LogOutOutline,
+}
+
+function resolveIcon(name: string | null): Component | undefined {
+  return name ? ICON_MAP[name] : undefined
+}
 
 function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
 
-const menuOptions = [
-  {
-    label: '仪表盘',
-    key: '/dashboard',
-    icon: renderIcon(GridOutline),
-  },
-  {
-    label: '资源管理',
-    key: '/system/resources',
-    icon: renderIcon(ShieldOutline),
-  },
-  {
-    label: '角色管理',
-    key: '/system/roles',
-    icon: renderIcon(PeopleOutline),
-  },
-  {
-    label: '用户管理',
-    key: '/user',
-    icon: renderIcon(PeopleOutline),
-    children: [
-      { label: '用户列表', key: '/user/list' },
-      { label: '角色管理', key: '/user/role' },
-    ],
-  },
-  {
-    label: '系统设置',
-    key: '/settings',
-    icon: renderIcon(SettingsOutline),
-  },
-]
+/** 递归转换为 Naive UI MenuOption */
+function toMenuOptions(items: MenuTreeItem[]): MenuOption[] {
+  return items
+    .filter((item) => !item.isHidden)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((item) => {
+      const opt: MenuOption = {
+        label: item.name || item.code || `#${item.id}`,
+        key: item.route || String(item.id),
+      }
+      const icon = resolveIcon(item.icon)
+      if (icon) {
+        opt.icon = renderIcon(icon)
+      }
+      if (item.children?.length) {
+        const children = toMenuOptions(item.children)
+        if (children.length > 0) {
+          opt.children = children
+        }
+      }
+      return opt
+    })
+}
+
+const menuOptions = computed(() => toMenuOptions(authStore.menuItems))
 
 function handleMenuUpdate(key: string) {
   router.push(key)

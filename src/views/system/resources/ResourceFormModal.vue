@@ -37,7 +37,6 @@ const formDefault = (): CreateResourceCommand => ({
   path: '',
   icon: '',
   route: '',
-  component: '',
   isHidden: false,
   badge: '',
   permissionCode: '',
@@ -117,7 +116,6 @@ async function loadDetail(id: number) {
   form.path = detail.path ?? ''
   form.icon = detail.icon ?? ''
   form.route = detail.route ?? ''
-  form.component = detail.component ?? ''
   form.isHidden = detail.isHidden ?? false
   form.badge = detail.badge ?? ''
   form.permissionCode = detail.permissionCode ?? ''
@@ -158,7 +156,6 @@ async function handleSubmit() {
     } else if (form.type === 'Api') {
       delete payload.icon
       delete payload.route
-      delete payload.component
       delete payload.badge
       delete payload.isHidden
     }
@@ -251,9 +248,6 @@ watch(() => props.visible, (v) => {
           <n-form-item label="路由">
             <n-input v-model:value="form.route" placeholder="/path/to/page" :maxlength="500" />
           </n-form-item>
-          <n-form-item label="组件路径">
-            <n-input v-model:value="form.component" placeholder="src/views/..." :maxlength="500" />
-          </n-form-item>
           <n-form-item label="角标">
             <n-input v-model:value="form.badge" placeholder="菜单角标文本" :maxlength="50" />
           </n-form-item>
@@ -272,9 +266,6 @@ watch(() => props.visible, (v) => {
         <div class="resource-form__grid">
           <n-form-item label="路由">
             <n-input v-model:value="form.route" placeholder="/path/to/page" :maxlength="500" />
-          </n-form-item>
-          <n-form-item label="组件路径">
-            <n-input v-model:value="form.component" placeholder="src/views/..." :maxlength="500" />
           </n-form-item>
           <n-form-item label="权限编码" class="resource-form__span2">
             <n-input v-model:value="form.permissionCode" placeholder="permission:code" :maxlength="100" />

@@ -16,11 +16,12 @@ export function setupRouterGuard(router: Router) {
       return `/login?redirect=${to.path}`
     }
 
-    // 首次进入时加载用户信息
+    // 首次进入时加载用户信息和菜单
     if (!authStore.user) {
       try {
         const info = await getUserInfo()
         authStore.setUser(info)
+        await authStore.fetchUserMenu()
       } catch {
         authStore.logout()
         return `/login?redirect=${to.path}`
@@ -28,5 +29,13 @@ export function setupRouterGuard(router: Router) {
     }
 
     return true
+  })
+
+  // 路由切换后加载当前页面的 API 权限
+  router.afterEach((to) => {
+    const authStore = useAuthStore()
+    if (to.path !== '/login') {
+      authStore.loadPagePermissionsByRoute(to.path, to.meta?.pageId)
+    }
   })
 }

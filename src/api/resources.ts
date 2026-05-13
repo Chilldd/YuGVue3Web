@@ -12,7 +12,6 @@ export interface ResourceListItem {
   path: string | null
   icon: string | null
   route: string | null
-  component: string | null
   isHidden: boolean
   badge: string | null
   permissionCode: string | null
@@ -47,7 +46,6 @@ export interface CreateResourceCommand {
   path?: string
   icon?: string
   route?: string
-  component?: string
   isHidden?: boolean
   badge?: string
   permissionCode?: string
@@ -83,7 +81,6 @@ export interface ResourceResult {
   path: string | null
   icon: string | null
   route: string | null
-  component: string | null
   isHidden: boolean
   badge: string | null
   permissionCode: string | null
