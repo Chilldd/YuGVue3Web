@@ -3,7 +3,7 @@ import request from './request'
 // ---- Types ----
 
 export interface ResourceListItem {
-  id: number
+  id: string
   name: string | null
   code: string | null
   description: string | null
@@ -15,7 +15,7 @@ export interface ResourceListItem {
   isHidden: boolean
   badge: string | null
   permissionCode: string | null
-  parentId: number | null
+  parentId: string | null
   sortOrder: number
   status: string | null
 }
@@ -33,7 +33,7 @@ export interface GetResourceListResult {
 export interface GetResourceListParams {
   type?: string
   httpMethod?: string
-  parentId?: number
+  parentId?: string
   activeOnly?: boolean
 }
 
@@ -49,13 +49,13 @@ export interface CreateResourceCommand {
   isHidden?: boolean
   badge?: string
   permissionCode?: string
-  parentId?: number
+  parentId?: string | null
   sortOrder?: number
   status?: string
 }
 
 export interface UpdateResourceCommand extends CreateResourceCommand {
-  id: number
+  id: string
 }
 
 export interface ResourceTreeItem extends ResourceListItem {
@@ -67,12 +67,12 @@ export interface GetResourceTreeResult {
 }
 
 export interface MoveResourceCommand {
-  id: number
-  parentId: number | null
+  id: string
+  parentId: string | null
 }
 
 export interface ResourceResult {
-  id: number
+  id: string
   name: string | null
   code: string | null
   description: string | null
@@ -84,7 +84,7 @@ export interface ResourceResult {
   isHidden: boolean
   badge: string | null
   permissionCode: string | null
-  parentId: number | null
+  parentId: string | null
   sortOrder: number
   status: string | null
   createdAt: string
@@ -110,7 +110,7 @@ export function getResourceList(params?: GetResourceListParams) {
 }
 
 /** 获取单个资源 */
-export function getResource(id: number) {
+export function getResource(id: string) {
   return request.get<ResourceDetail, ResourceDetail>(
     `/api/system/resources/${id}`,
   )
@@ -133,19 +133,19 @@ export function updateResource(data: UpdateResourceCommand) {
 }
 
 /** 删除资源 */
-export function deleteResource(id: number) {
+export function deleteResource(id: string) {
   return request.delete<void, void>(`/api/system/resources/${id}`)
 }
 
 /** 激活资源 */
-export function activateResource(id: number) {
+export function activateResource(id: string) {
   return request.post<ResourceResult, ResourceResult>(
     `/api/system/resources/${id}/activate`,
   )
 }
 
 /** 禁用资源 */
-export function disableResource(id: number) {
+export function disableResource(id: string) {
   return request.post<ResourceResult, ResourceResult>(
     `/api/system/resources/${id}/disable`,
   )

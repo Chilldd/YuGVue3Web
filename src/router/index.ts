@@ -38,6 +38,12 @@ const router = createRouter({
           component: () => import('@/views/system/roles/RoleManagement.vue'),
           meta: { title: '角色管理' },
         },
+        {
+          path: 'system/tools',
+          name: 'tools',
+          component: () => import('@/views/system/tools/ToolPage.vue'),
+          meta: { title: '后端工具' },
+        },
       ],
     },
     {

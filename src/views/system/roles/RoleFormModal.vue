@@ -10,7 +10,7 @@ const { getDetail, save: saveRole } = useRole()
 const props = withDefaults(defineProps<{
   visible: boolean
   isEdit?: boolean
-  editingId?: number | null
+  editingId?: string | null
 }>(), {
   isEdit: false,
   editingId: null,
@@ -48,7 +48,7 @@ function resetForm() {
   roleStatus.value = 'Active'
 }
 
-async function loadDetail(id: number) {
+async function loadDetail(id: string) {
   const detail = await getDetail(id)
   if (!detail) return
   form.name = detail.name ?? ''

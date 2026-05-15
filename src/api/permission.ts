@@ -3,7 +3,7 @@ import request from './request'
 // ---- Types ----
 
 export interface MenuTreeItem {
-  id: number
+  id: string
   name: string | null
   code: string | null
   icon: string | null
@@ -31,7 +31,7 @@ export function getUserMenu() {
 }
 
 /** 获取指定页面的 API 权限编码列表 */
-export function getPageApiPermissions(pageId: number) {
+export function getPageApiPermissions(pageId: string) {
   return request.get<GetPageApiPermissionsResult, GetPageApiPermissionsResult>(
     `/api/permission/pages/${pageId}/apis`,
   )

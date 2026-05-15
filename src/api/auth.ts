@@ -9,6 +9,7 @@ export interface LoginResult {
   accessToken: string
   refreshToken: string
   expiresAt: string
+  roles: string[]
 }
 
 export interface UserInfo {
@@ -20,6 +21,7 @@ export interface RefreshTokenResult {
   accessToken: string
   refreshToken: string
   expiresAt: string
+  roles: string[]
 }
 
 /** 登录 */

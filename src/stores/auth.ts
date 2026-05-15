@@ -1,16 +1,18 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login, getUserInfo } from '@/api/auth'
+import { login, logoutApi, getUserInfo } from '@/api/auth'
 import type { LoginParams, UserInfo } from '@/api/auth'
 import { getUserMenu, getPageApiPermissions } from '@/api/permission'
 import type { MenuTreeItem } from '@/api/permission'
 
 const TOKEN_KEY = 'accessToken'
 const REFRESH_KEY = 'refreshToken'
+const EXPIRES_KEY = 'expiresAt'
 
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref(localStorage.getItem(TOKEN_KEY) || '')
   const refreshToken = ref(localStorage.getItem(REFRESH_KEY) || '')
+  const expiresAt = ref(localStorage.getItem(EXPIRES_KEY) || '')
   const user = ref<UserInfo | null>(null)
 
   const isLoggedIn = computed(() => !!accessToken.value)
@@ -37,7 +39,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /** 扁平化菜单树查找匹配 route 的节点 id */
-  function findPageIdByRoute(path: string, items?: MenuTreeItem[]): number | null {
+  function findPageIdByRoute(path: string, items?: MenuTreeItem[]): string | null {
     const target = normalizeRoute(path)
     const list = items || menuItems.value
     for (const item of list) {
@@ -65,7 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /** 获取指定页面的 API 权限编码 */
-  async function fetchPageApiPermissions(pageId: number) {
+  async function fetchPageApiPermissions(pageId: string) {
     try {
       const res = await getPageApiPermissions(pageId)
       pagePermissions.value = res.permissionCodes || []
@@ -75,7 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /** 根据路由路径加载页面 API 权限，优先使用路由 meta 中的 pageId */
-  async function loadPagePermissionsByRoute(path: string, pageIdFromMeta?: number) {
+  async function loadPagePermissionsByRoute(path: string, pageIdFromMeta?: string) {
     const pageId = pageIdFromMeta ?? findPageIdByRoute(path)
     if (pageId !== null && pageId !== undefined) {
       await fetchPageApiPermissions(pageId)
@@ -90,8 +92,10 @@ export const useAuthStore = defineStore('auth', () => {
     const res = await login(params)
     accessToken.value = res.accessToken
     refreshToken.value = res.refreshToken
+    expiresAt.value = res.expiresAt
     localStorage.setItem(TOKEN_KEY, res.accessToken)
     localStorage.setItem(REFRESH_KEY, res.refreshToken)
+    localStorage.setItem(EXPIRES_KEY, res.expiresAt)
     const info = await getUserInfo()
     user.value = info
     // 登录后加载菜单
@@ -102,20 +106,34 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = info
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      if (refreshToken.value) {
+        await logoutApi(refreshToken.value)
+      }
+    } catch {
+      // 即使服务端登出失败也清除本地状态
+    }
+    clearLocalState()
+  }
+
+  function clearLocalState() {
     accessToken.value = ''
     refreshToken.value = ''
+    expiresAt.value = ''
     user.value = null
     menuItems.value = []
     pagePermissions.value = []
     menuLoaded.value = false
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(REFRESH_KEY)
+    localStorage.removeItem(EXPIRES_KEY)
   }
 
   return {
     accessToken,
     refreshToken,
+    expiresAt,
     user,
     isLoggedIn,
     menuItems,
@@ -129,5 +147,6 @@ export const useAuthStore = defineStore('auth', () => {
     loginAction,
     setUser,
     logout,
+    clearLocalState,
   }
 })

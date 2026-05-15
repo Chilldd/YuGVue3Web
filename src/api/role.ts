@@ -3,7 +3,7 @@ import request from './request'
 // ---- Types ----
 
 export interface RoleListItem {
-  id: number
+  id: string
   name: string | null
   code: string | null
   description: string | null
@@ -12,7 +12,7 @@ export interface RoleListItem {
 }
 
 export interface RoleResult {
-  id: number
+  id: string
   name: string | null
   code: string | null
   description: string | null
@@ -22,12 +22,12 @@ export interface RoleResult {
 }
 
 export interface GetRoleDetailResult {
-  id: number
+  id: string
   name: string | null
   code: string | null
   description: string | null
   status: string | null
-  resourceIds: number[] | null
+  resourceIds: string[] | null
   createdAt: string
   updatedAt: string
 }
@@ -44,15 +44,15 @@ export interface CreateRoleCommand {
 }
 
 export interface UpdateRoleCommand {
-  id: number
+  id: string
   name: string
   code: string
   description?: string
 }
 
 export interface AssignResourceCommand {
-  roleId: number
-  resourceIds: number[]
+  roleId: string
+  resourceIds: string[]
 }
 
 // ---- API functions ----
@@ -63,7 +63,7 @@ export function getRoleList() {
 }
 
 /** 获取单个角色 */
-export function getRole(id: number) {
+export function getRole(id: string) {
   return request.get<GetRoleDetailResult, GetRoleDetailResult>(
     `/api/system/role/${id}`,
   )
@@ -75,27 +75,27 @@ export function createRole(data: CreateRoleCommand) {
 }
 
 /** 更新角色 */
-export function updateRole(id: number, data: UpdateRoleCommand) {
+export function updateRole(id: string, data: UpdateRoleCommand) {
   return request.put<RoleResult, RoleResult>(`/api/system/role/${id}`, data)
 }
 
 /** 删除角色 */
-export function deleteRole(id: number) {
+export function deleteRole(id: string) {
   return request.delete<void, void>(`/api/system/role/${id}`)
 }
 
 /** 激活角色 */
-export function activateRole(id: number) {
+export function activateRole(id: string) {
   return request.post<RoleResult, RoleResult>(`/api/system/role/${id}/activate`)
 }
 
 /** 禁用角色 */
-export function disableRole(id: number) {
+export function disableRole(id: string) {
   return request.post<RoleResult, RoleResult>(`/api/system/role/${id}/disable`)
 }
 
 /** 给角色分配资源（覆盖模式） */
-export function assignResources(id: number, data: AssignResourceCommand) {
+export function assignResources(id: string, data: AssignResourceCommand) {
   return request.post<RoleResult, RoleResult>(
     `/api/system/role/${id}/resources`,
     data,
@@ -103,7 +103,7 @@ export function assignResources(id: number, data: AssignResourceCommand) {
 }
 
 /** 从角色移除资源 */
-export function removeResourceFromRole(roleId: number, resourceId: number) {
+export function removeResourceFromRole(roleId: string, resourceId: string) {
   return request.delete<void, void>(
     `/api/system/role/${roleId}/resources/${resourceId}`,
   )

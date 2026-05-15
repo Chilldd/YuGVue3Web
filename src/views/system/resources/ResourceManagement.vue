@@ -7,6 +7,7 @@ import type { ResourceTreeItem } from '@/api/resources'
 import { deleteResource, moveResource } from '@/api/resources'
 import { useResource } from '@/composables/useResource'
 import { usePermission } from '@/composables/usePermission'
+import { resource } from '@/constants/permissions'
 import ResourceFormModal from './ResourceFormModal.vue'
 
 const dialog = useDialog()
@@ -43,8 +44,8 @@ const statusOptions = [
 
 const showModal = ref(false)
 const isEdit = ref(false)
-const editingId = ref<number | null>(null)
-const initialParentId = ref<number | null>(null)
+const editingId = ref<string | null>(null)
+const initialParentId = ref<string | null>(null)
 
 // ---- Tree ----
 
@@ -156,7 +157,7 @@ function handleToggleStatus(resource: ResourceTreeItem) {
 
 // ---- Drag & Drop ----
 
-function findParent(items: ResourceTreeItem[], targetId: number): number | null {
+function findParent(items: ResourceTreeItem[], targetId: string): string | null {
   for (const item of items) {
     if (item.children?.some((c) => c.id === targetId)) return item.id
     if (item.children) {
@@ -169,7 +170,7 @@ function findParent(items: ResourceTreeItem[], targetId: number): number | null 
 
 function isMoveValid(dragType: string, parentType: string | null): boolean {
   switch (parentType) {
-    case null: return dragType === 'Menu'
+    case null: return dragType === 'Menu' || dragType === 'Page'
     case 'Menu': return dragType === 'Menu' || dragType === 'Page'
     case 'Page': return dragType === 'Api'
     case 'Api': return false
@@ -185,14 +186,8 @@ async function handleDrop({ node, dragNode, dropPosition }: TreeDropInfo) {
   // Prevent self-drop
   if (dragRes.id === targetRes.id) return
 
-  // 虚拟节点不允许操作
-  if (dragRes.id === '-1' || targetRes.id === '-1') {
-    message.error('虚拟节点不允许操作')
-    return
-  }
-
   // Determine new parent
-  let newParentId: number | null
+  let newParentId: string | null
   let parentType: string | null
   if (dropPosition === 'inside') {
     newParentId = targetRes.id
@@ -238,7 +233,7 @@ async function handleDrop({ node, dragNode, dropPosition }: TreeDropInfo) {
   })
 }
 
-function isDescendant(items: ResourceTreeItem[], ancestorId: number, targetId: number): boolean {
+function isDescendant(items: ResourceTreeItem[], ancestorId: string, targetId: string): boolean {
   const ancestor = findInTree(items, ancestorId)
   if (!ancestor?.children) return false
   for (const child of ancestor.children) {
@@ -248,7 +243,7 @@ function isDescendant(items: ResourceTreeItem[], ancestorId: number, targetId: n
   return false
 }
 
-function findInTree(items: ResourceTreeItem[], id: number): ResourceTreeItem | null {
+function findInTree(items: ResourceTreeItem[], id: string): ResourceTreeItem | null {
   for (const item of items) {
     if (item.id === id) return item
     if (item.children) {
@@ -308,16 +303,16 @@ function renderSuffix(info: { option: TreeOption }) {
   const isActive = r.status === 'Active'
 
   const btns = []
-  if (hasPermission('resource:create')) {
+  if (hasPermission(resource.create)) {
     btns.push(actionBtn('M12 5v14m-7-7h14', '新增子节点', '', (e) => { e.stopPropagation(); openCreateChildModal(r) }))
   }
-  if (hasPermission('resource:update')) {
+  if (hasPermission(resource.update)) {
     btns.push(actionBtn('M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z', '编辑', '', (e) => { e.stopPropagation(); openEditModal(r) }))
   }
-  if ((isActive && hasPermission('resource:disable')) || (!isActive && hasPermission('resource:activate'))) {
+  if ((isActive && hasPermission(resource.disable)) || (!isActive && hasPermission(resource.activate))) {
     btns.push(actionBtn(isActive ? 'M6 4h4v16H6zM14 4h4v16h-4z' : 'M5 3l14 9-14 9z', isActive ? '禁用' : '启用', isActive ? 'action-warn' : 'action-success', (e) => { e.stopPropagation(); handleToggleStatus(r) }))
   }
-  if (hasPermission('resource:delete')) {
+  if (hasPermission(resource.delete)) {
     btns.push(actionBtn('M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2', '删除', 'action-danger', (e) => { e.stopPropagation(); handleDelete(r) }))
   }
   return h('span', { class: 'tree-node__actions' }, btns)
@@ -342,7 +337,7 @@ onMounted(loadTree)
             </template>
             刷新
           </n-button>
-          <n-button type="primary" size="small" @click="openCreateModal" v-if="hasPermission('resource:create')">
+          <n-button type="primary" size="small" @click="openCreateModal" v-if="hasPermission(resource.create)">
             <template #icon>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </template>

@@ -6,6 +6,7 @@ import type { RoleListItem } from '@/api/role'
 import { useRole } from '@/composables/useRole'
 import CrudTable from '@/components/CrudTable.vue'
 import { usePermission } from '@/composables/usePermission'
+import { role } from '@/constants/permissions'
 import RoleFormModal from './RoleFormModal.vue'
 import RoleResourceModal from './RoleResourceModal.vue'
 
@@ -25,10 +26,10 @@ const pageSize = ref(10)
 
 const showFormModal = ref(false)
 const isEdit = ref(false)
-const editingId = ref<number | null>(null)
+const editingId = ref<string | null>(null)
 
 const showResourceModal = ref(false)
-const resourceRoleId = ref<number | null>(null)
+const resourceRoleId = ref<string | null>(null)
 const resourceRoleName = ref('')
 
 function loadList() {
@@ -100,16 +101,16 @@ const columns: DataTableColumn<RoleListItem>[] = [
       const btn = (label: string, cls: string, onClick: () => void) =>
         h('a', { class: ['action-btn', cls], onClick }, label)
       const btns = []
-      if (hasPermission('role:update')) {
+      if (hasPermission(role.update)) {
         btns.push(btn('编辑', 'action-btn--edit', () => openEditModal(row)))
       }
-      if (hasPermission('role:assignresources')) {
+      if (hasPermission(role.assignResources)) {
         btns.push(btn('分配资源', 'action-btn--resource', () => openResourceModal(row)))
       }
-      if ((row.status === 'Active' && hasPermission('role:disable')) || (row.status !== 'Active' && hasPermission('role:activate'))) {
+      if ((row.status === 'Active' && hasPermission(role.disable)) || (row.status !== 'Active' && hasPermission(role.activate))) {
         btns.push(btn(row.status === 'Active' ? '禁用' : '启用', row.status === 'Active' ? 'action-btn--warn' : 'action-btn--success', () => handleToggleStatus(row)))
       }
-      if (hasPermission('role:delete')) {
+      if (hasPermission(role.delete)) {
         btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
       }
       return h('div', { class: 'action-group' }, btns)
@@ -135,7 +136,7 @@ onMounted(loadList)
             </template>
             刷新
           </n-button>
-          <n-button type="primary" size="small" @click="openCreateModal" v-if="hasPermission('role:create')">
+          <n-button type="primary" size="small" @click="openCreateModal" v-if="hasPermission(role.create)">
             <template #icon>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </template>

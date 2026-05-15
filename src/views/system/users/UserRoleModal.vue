@@ -9,7 +9,7 @@ const { getDetail, saveRoles } = useUser()
 
 const props = withDefaults(defineProps<{
   visible: boolean
-  userId?: number | null
+  userId?: string | null
   username?: string
 }>(), {
   userId: null,
@@ -23,8 +23,8 @@ const emit = defineEmits<{
 
 const submitting = ref(false)
 const loading = ref(false)
-const roleOptions = ref<{ label: string; value: number }[]>([])
-const selectedRoleIds = ref<number[]>([])
+const roleOptions = ref<{ label: string; value: string }[]>([])
+const selectedRoleIds = ref<string[]>([])
 
 async function loadRoles() {
   try {
@@ -38,7 +38,7 @@ async function loadRoles() {
   }
 }
 
-async function loadUserRoles(userId: number) {
+async function loadUserRoles(userId: string) {
   loading.value = true
   try {
     const detail = await getDetail(userId)

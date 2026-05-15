@@ -35,7 +35,7 @@ export function setupRouterGuard(router: Router) {
   router.afterEach((to) => {
     const authStore = useAuthStore()
     if (to.path !== '/login') {
-      authStore.loadPagePermissionsByRoute(to.path, to.meta?.pageId)
+      authStore.loadPagePermissionsByRoute(to.path, to.meta?.pageId as string | undefined)
     }
   })
 }

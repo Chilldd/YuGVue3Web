@@ -9,6 +9,7 @@ import {
   activateUser,
   disableUser,
   setUserRoles,
+  resetPassword,
 } from '@/api/user'
 import type { CreateUserCommand, GetUserResult, SetUserRolesCommand } from '@/api/user'
 
@@ -49,12 +50,12 @@ export function useUser() {
     }
   }
 
-  async function remove(id: number) {
+  async function remove(id: string) {
     await deleteUser(id)
   }
 
-  async function batchRemove(ids: (string | number)[]) {
-    await Promise.all(ids.map((id) => deleteUser(id as number)))
+  async function batchRemove(ids: string[]) {
+    await Promise.all(ids.map((id) => deleteUser(id)))
   }
 
   async function toggleStatus(row: UserListItem) {
@@ -91,7 +92,7 @@ export function useUser() {
     })
   }
 
-  function confirmBatchDelete(ids: (string | number)[], onSuccess: () => void) {
+  function confirmBatchDelete(ids: string[], onSuccess: () => void) {
     if (ids.length === 0) return
     dialog.warning({
       title: '批量删除',
@@ -111,7 +112,7 @@ export function useUser() {
     })
   }
 
-  async function getDetail(id: number): Promise<GetUserResult | null> {
+  async function getDetail(id: string): Promise<GetUserResult | null> {
     try {
       return await getUser(id)
     } catch {
@@ -139,6 +140,25 @@ export function useUser() {
     }
   }
 
+  async function confirmResetPassword(row: UserListItem, onSuccess: () => void) {
+    dialog.warning({
+      title: '确认重置密码',
+      content: `确定要重置用户「${row.username}」的密码吗？重置后密码变为 123456，该用户所有会话将强制登出。`,
+      positiveText: '重置',
+      negativeText: '取消',
+      positiveButtonProps: { type: 'warning' },
+      onPositiveClick: async () => {
+        try {
+          await resetPassword(row.id)
+          message.success('密码已重置为 123456')
+          onSuccess()
+        } catch {
+          // 错误由全局拦截器处理
+        }
+      },
+    })
+  }
+
   return {
     loading,
     listData,
@@ -153,5 +173,6 @@ export function useUser() {
     getDetail,
     save,
     saveRoles,
+    confirmResetPassword,
   }
 }

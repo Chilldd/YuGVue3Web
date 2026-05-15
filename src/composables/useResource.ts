@@ -63,7 +63,6 @@ export function useResource() {
         return
       } catch {
         if (i < retries) continue
-        // 最终重试失败由全局拦截器处理
       } finally {
         loading.value = false
       }
@@ -95,12 +94,12 @@ export function useResource() {
     return result
   }
 
-  async function remove(id: number) {
+  async function remove(id: string) {
     await deleteResource(id)
   }
 
-  async function batchRemove(ids: (string | number)[]) {
-    await Promise.all(ids.map((id) => deleteResource(id as number)))
+  async function batchRemove(ids: string[]) {
+    await Promise.all(ids.map((id) => deleteResource(id)))
   }
 
   async function toggleStatus(row: ResourceListItem) {
@@ -141,7 +140,7 @@ export function useResource() {
   }
 
   function confirmBatchDelete(
-    ids: (string | number)[],
+    ids: string[],
     onSuccess: () => void,
   ) {
     if (ids.length === 0) return
@@ -163,7 +162,7 @@ export function useResource() {
     })
   }
 
-  async function getDetail(id: number): Promise<ResourceDetail | null> {
+  async function getDetail(id: string): Promise<ResourceDetail | null> {
     try {
       return await getResource(id)
     } catch {
@@ -171,10 +170,10 @@ export function useResource() {
     }
   }
 
-  async function save(data: CreateResourceCommand, id?: number | null): Promise<boolean> {
+  async function save(data: CreateResourceCommand, id?: string | null): Promise<boolean> {
     try {
       if (id) {
-        await updateResource({ ...data, id } as UpdateResourceCommand)
+        await updateResource({ ...data, id })
         message.success('更新成功')
       } else {
         await createResource(data)

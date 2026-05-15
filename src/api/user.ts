@@ -3,7 +3,7 @@ import request from './request'
 // ---- Types ----
 
 export interface UserListItem {
-  id: number
+  id: string
   username: string
   status: string
   createdAt: string
@@ -17,10 +17,10 @@ export interface GetUserListResult {
 }
 
 export interface GetUserResult {
-  id: number
+  id: string
   username: string
   status: string
-  roleIds: number[] | null
+  roleIds: string[] | null
   createdAt: string
   updatedAt: string
 }
@@ -31,14 +31,14 @@ export interface CreateUserCommand {
 }
 
 export interface UserResult {
-  id: number
+  id: string
   username: string
   createdAt: string
 }
 
 export interface SetUserRolesCommand {
-  userId: number
-  roleIds: number[]
+  userId: string
+  roleIds: string[]
 }
 
 // ---- API functions ----
@@ -49,7 +49,7 @@ export function getUserList() {
 }
 
 /** 获取单个用户 */
-export function getUser(id: number) {
+export function getUser(id: string) {
   return request.get<GetUserResult, GetUserResult>(`/api/system/user/${id}`)
 }
 
@@ -59,21 +59,26 @@ export function createUser(data: CreateUserCommand) {
 }
 
 /** 删除用户 */
-export function deleteUser(id: number) {
+export function deleteUser(id: string) {
   return request.delete<void, void>(`/api/system/user/${id}`)
 }
 
 /** 启用用户 */
-export function activateUser(id: number) {
+export function activateUser(id: string) {
   return request.post<UserResult, UserResult>(`/api/system/user/${id}/activate`)
 }
 
 /** 禁用用户 */
-export function disableUser(id: number) {
+export function disableUser(id: string) {
   return request.post<UserResult, UserResult>(`/api/system/user/${id}/disable`)
 }
 
 /** 设置用户角色（覆盖模式） */
 export function setUserRoles(data: SetUserRolesCommand) {
   return request.put<void, void>(`/api/system/user/${data.userId}/roles`, data)
+}
+
+/** 重置用户密码（密码重置为 123456，所有会话强制登出） */
+export function resetPassword(id: string) {
+  return request.post<UserResult, UserResult>(`/api/system/user/${id}/reset-password`)
 }

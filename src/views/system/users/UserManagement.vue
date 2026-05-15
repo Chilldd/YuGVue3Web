@@ -15,6 +15,7 @@ const {
   fetchListWithRetry,
   toggleStatus,
   confirmDelete,
+  confirmResetPassword,
 } = useUser()
 
 const page = ref(1)
@@ -22,7 +23,7 @@ const pageSize = ref(10)
 
 const showFormModal = ref(false)
 const showRoleModal = ref(false)
-const roleUserId = ref<number | null>(null)
+const roleUserId = ref<string | null>(null)
 const roleUsername = ref('')
 
 function loadList() {
@@ -50,6 +51,10 @@ function handleDelete(row: UserListItem) {
 async function handleToggleStatus(row: UserListItem) {
   const ok = await toggleStatus(row)
   if (ok) loadList()
+}
+
+function handleResetPassword(row: UserListItem) {
+  confirmResetPassword(row, loadList)
 }
 
 const columns: DataTableColumn<UserListItem>[] = [
@@ -84,6 +89,7 @@ const columns: DataTableColumn<UserListItem>[] = [
       } else {
         btns.push(btn('启用', 'action-btn--success', () => handleToggleStatus(row)))
       }
+      btns.push(btn('重置密码', 'action-btn--warn', () => handleResetPassword(row)))
       btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
       return h('div', { class: 'action-group' }, btns)
     },

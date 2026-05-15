@@ -55,12 +55,12 @@ export function useRole() {
     }
   }
 
-  async function remove(id: number) {
+  async function remove(id: string) {
     await deleteRole(id)
   }
 
-  async function batchRemove(ids: (string | number)[]) {
-    await Promise.all(ids.map((id) => deleteRole(id as number)))
+  async function batchRemove(ids: string[]) {
+    await Promise.all(ids.map((id) => deleteRole(id)))
   }
 
   async function toggleStatus(row: RoleListItem) {
@@ -101,7 +101,7 @@ export function useRole() {
   }
 
   function confirmBatchDelete(
-    ids: (string | number)[],
+    ids: string[],
     onSuccess: () => void,
   ) {
     if (ids.length === 0) return
@@ -123,7 +123,7 @@ export function useRole() {
     })
   }
 
-  async function getDetail(id: number): Promise<GetRoleDetailResult | null> {
+  async function getDetail(id: string): Promise<GetRoleDetailResult | null> {
     try {
       return await getRole(id)
     } catch {
@@ -131,7 +131,7 @@ export function useRole() {
     }
   }
 
-  async function save(data: CreateRoleCommand, id?: number | null): Promise<boolean> {
+  async function save(data: CreateRoleCommand, id?: string | null): Promise<boolean> {
     try {
       if (id) {
         await updateRole(id, { ...data, id })
@@ -146,7 +146,7 @@ export function useRole() {
     }
   }
 
-  async function saveResources(roleId: number, resourceIds: number[]): Promise<boolean> {
+  async function saveResources(roleId: string, resourceIds: string[]): Promise<boolean> {
     try {
       await assignResources(roleId, { roleId, resourceIds })
       message.success('资源分配成功')

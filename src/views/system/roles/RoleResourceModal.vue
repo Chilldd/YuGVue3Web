@@ -10,7 +10,7 @@ const { getDetail, saveResources } = useRole()
 
 const props = withDefaults(defineProps<{
   visible: boolean
-  roleId?: number | null
+  roleId?: string | null
   roleName?: string
 }>(), {
   roleId: null,
@@ -52,7 +52,7 @@ interface ResourceTreeOption extends TreeOption {
 
 function convertToTreeOptions(items: ResourceTreeItem[]): ResourceTreeOption[] {
   return items
-    .filter(item => String(item.id) !== '-1')
+    .filter(item => item.id !== '-1')
     .map(item => ({
       key: item.id,
       label: item.name || item.code || `#${item.id}`,
@@ -69,7 +69,7 @@ function renderPrefix(info: { option: TreeOption }) {
 }
 
 /** 收集 Page 下的一级子节点 id（Api 只有一级） */
-function collectChildIds(item: ResourceTreeItem): number[] {
+function collectChildIds(item: ResourceTreeItem): string[] {
   return item.children?.map((c) => c.id) ?? []
 }
 
@@ -83,7 +83,7 @@ function renderSuffix(info: { option: TreeOption }) {
   function handleSelectAll(e: Event) {
     e.stopPropagation()
     if (allSelected) {
-      checkedKeys.value = checkedKeys.value.filter((id) => !childIds.includes(id as number))
+      checkedKeys.value = checkedKeys.value.filter((id) => !childIds.includes(id as string))
     } else {
       checkedKeys.value = [...new Set([...checkedKeys.value, ...childIds])]
     }
@@ -115,7 +115,7 @@ async function loadResources() {
   }
 }
 
-async function loadRoleResources(roleId: number) {
+async function loadRoleResources(roleId: string) {
   const detail = await getDetail(roleId)
   if (detail?.resourceIds) {
     checkedKeys.value = detail.resourceIds
@@ -126,7 +126,7 @@ async function handleSubmit() {
   if (!props.roleId) return
   submitting.value = true
   try {
-    const ok = await saveResources(props.roleId, checkedKeys.value as number[])
+    const ok = await saveResources(props.roleId, checkedKeys.value as string[])
     if (ok) {
       emit('update:visible', false)
       emit('saved')

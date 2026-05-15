@@ -10,9 +10,9 @@ const { getDetail, save: saveResource } = useResource()
 const props = withDefaults(defineProps<{
   visible: boolean
   isEdit?: boolean
-  editingId?: number | null
+  editingId?: string | null
   parentResources?: ResourceListItem[]
-  initialParentId?: number | null
+  initialParentId?: string | null
 }>(), {
   isEdit: false,
   editingId: null,
@@ -33,14 +33,14 @@ const formDefault = (): CreateResourceCommand => ({
   code: '',
   description: '',
   type: 'Menu',
-  httpMethod: null as unknown as string,
+  httpMethod: undefined,
   path: '',
   icon: '',
   route: '',
   isHidden: false,
   badge: '',
   permissionCode: '',
-  parentId: null as unknown as number,
+  parentId: null,
   sortOrder: 0,
   status: 'Active',
 })
@@ -85,7 +85,7 @@ const parentOptions = computed(() => {
       label: item.name || item.code || `#${item.id}`,
       value: item.id,
     }))
-  return [{ label: '（无）', value: null as unknown as number }, ...items]
+  return [{ label: '（无）', value: null as unknown as string }, ...items]
 })
 
 const rules: FormRules = {
@@ -105,21 +105,21 @@ function resetForm() {
   Object.assign(form, formDefault())
 }
 
-async function loadDetail(id: number) {
+async function loadDetail(id: string) {
   const detail = await getDetail(id)
   if (!detail) return
   form.name = detail.name ?? ''
   form.code = detail.code ?? ''
   form.description = detail.description ?? ''
   form.type = detail.type ?? 'Menu'
-  form.httpMethod = detail.httpMethod ?? ('' as unknown as string)
+  form.httpMethod = detail.httpMethod ?? undefined
   form.path = detail.path ?? ''
   form.icon = detail.icon ?? ''
   form.route = detail.route ?? ''
   form.isHidden = detail.isHidden ?? false
   form.badge = detail.badge ?? ''
   form.permissionCode = detail.permissionCode ?? ''
-  form.parentId = detail.parentId as unknown as number
+  form.parentId = detail.parentId
   form.sortOrder = detail.sortOrder ?? 0
   form.status = detail.status ?? 'Active'
 }
@@ -162,7 +162,7 @@ async function handleSubmit() {
 
     // Common cleanup
     if (!payload.description) delete payload.description
-    if (!payload.parentId) payload.parentId = null as unknown as number
+    if (!payload.parentId) payload.parentId = null
 
     const ok = await saveResource(payload, props.isEdit ? props.editingId : null)
     if (ok) {
@@ -185,7 +185,7 @@ watch(() => props.visible, (v) => {
     } else {
       resetForm()
       if (props.initialParentId) {
-        form.parentId = props.initialParentId as unknown as number
+        form.parentId = props.initialParentId
       }
     }
   }
