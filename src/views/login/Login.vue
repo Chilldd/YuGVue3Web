@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useMessage } from 'naive-ui'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
 
 const router = useRouter()
 const route = useRoute()
@@ -25,7 +26,12 @@ async function handleLogin() {
     await router.push(redirect)
     message.success('登录成功')
   } catch (error: unknown) {
-    message.error(error instanceof Error ? error.message : '登录失败，请检查用户名和密码')
+    if (axios.isAxiosError(error)) {
+      const detail = error.response?.data?.detail || error.response?.data?.message
+      message.error(detail || '登录失败，请检查用户名和密码')
+    } else {
+      message.error('登录失败，请检查用户名和密码')
+    }
   } finally {
     loading.value = false
   }

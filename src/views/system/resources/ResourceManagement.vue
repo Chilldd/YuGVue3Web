@@ -366,6 +366,10 @@ onMounted(loadTree)
 
       <!-- Tree Card -->
       <div class="tree-card">
+        <div class="tree-card__hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>「其他」下的为未归属 API，可拖拽到对应页面下进行权限配置</span>
+        </div>
         <n-spin :show="treeLoading">
           <n-tree
             v-if="treeOptions.length > 0"
@@ -440,6 +444,24 @@ onMounted(loadTree)
   border-radius: 16px;
   padding: 8px;
   min-height: 200px;
+}
+
+.tree-card__hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  background: rgba(230, 57, 124, 0.06);
+  border-radius: 8px;
+  border: 1px solid rgba(230, 57, 124, 0.1);
+}
+.tree-card__hint svg {
+  flex-shrink: 0;
+  color: var(--brand-pink);
+  opacity: 0.7;
 }
 
 /* Override NTree node spacing */

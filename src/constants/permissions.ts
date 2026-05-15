@@ -15,6 +15,8 @@ export const role = {
   activate: 'role:activate',
   disable: 'role:disable',
   assignResources: 'role:assignresources',
+  assignUsers: 'role:assignusers',
+  viewUsers: 'role:getusers',
 } as const
 
 export const tool = {

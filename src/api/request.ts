@@ -69,8 +69,13 @@ request.interceptors.response.use(
 
     // ---- 401 令牌过期 / 未授权 ----
     if (status === 401 && !config._isRetry) {
-      // 刷新接口本身返回 401 → 刷新令牌已失效，直接跳转登录
-      if ((/\/auth\/(login|refresh)$/i).test(config.url || '')) {
+      // 登录接口 401 → 凭证错误，交给调用方处理，不拦截
+      if ((/\/auth\/login$/i).test(config.url || '')) {
+        return Promise.reject(error)
+      }
+
+      // 刷新接口本身 401 → 刷新令牌已失效，直接跳转登录
+      if ((/\/auth\/refresh$/i).test(config.url || '')) {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
         window.location.href = '/login'

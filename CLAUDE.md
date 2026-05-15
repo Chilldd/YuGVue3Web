@@ -54,7 +54,10 @@
 - 类型完整、无 lint 问题
 - 无冗余 import、无重复逻辑
 - 命名一致、组件职责单一
-- API 类型完整、composable 可复用# 参考文档（docs/）
+- API 类型完整、composable 可复用
+- 任务开发完成且 `npx vue-tsc --noEmit` 编译通过后，自动提交代码
+
+# 参考文档（docs/）
 
 以下为按需查阅的文档：
 

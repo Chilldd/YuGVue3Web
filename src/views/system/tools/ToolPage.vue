@@ -20,7 +20,7 @@ interface ToolItem {
 const toolItems: ToolItem[] = [
   {
     label: '同步 API 资源',
-    description: '扫描后端 Controller 路由，自动同步接口资源到数据库',
+    description: '扫描后端所有的权限接口，更新系统中的 API 资源列表，更新后可以在资源管理中维护 API 所属页面和权限',
     icon: 'M4 4v16h16V4H4zm2 2h12v12H6V6zm3 3h6v6H9V9z',
     permissionCode: toolPerm.syncApiResources,
     action: async () => {

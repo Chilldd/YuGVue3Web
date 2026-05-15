@@ -9,6 +9,7 @@ import { usePermission } from '@/composables/usePermission'
 import { role } from '@/constants/permissions'
 import RoleFormModal from './RoleFormModal.vue'
 import RoleResourceModal from './RoleResourceModal.vue'
+import RoleUserModal from './RoleUserModal.vue'
 
 const {
   loading,
@@ -31,6 +32,10 @@ const editingId = ref<string | null>(null)
 const showResourceModal = ref(false)
 const resourceRoleId = ref<string | null>(null)
 const resourceRoleName = ref('')
+
+const showUserModal = ref(false)
+const userRoleId = ref<string | null>(null)
+const userRoleName = ref('')
 
 function loadList() {
   fetchListWithRetry()
@@ -56,6 +61,12 @@ function openResourceModal(row: RoleListItem) {
   resourceRoleId.value = row.id
   resourceRoleName.value = row.name || row.code || `#${row.id}`
   showResourceModal.value = true
+}
+
+function openUserModal(row: RoleListItem) {
+  userRoleId.value = row.id
+  userRoleName.value = row.name || row.code || `#${row.id}`
+  showUserModal.value = true
 }
 
 function handleDelete(row: RoleListItem) {
@@ -96,13 +107,16 @@ const columns: DataTableColumn<RoleListItem>[] = [
     },
   },
   {
-    title: '操作', key: 'actions', width: 300, fixed: 'right',
+    title: '操作', key: 'actions', width: 370, fixed: 'right',
     render(row) {
       const btn = (label: string, cls: string, onClick: () => void) =>
         h('a', { class: ['action-btn', cls], onClick }, label)
       const btns = []
       if (hasPermission(role.update)) {
         btns.push(btn('编辑', 'action-btn--edit', () => openEditModal(row)))
+      }
+      if (hasPermission(role.viewUsers)) {
+        btns.push(btn('查看用户', 'action-btn--user', () => openUserModal(row)))
       }
       if (hasPermission(role.assignResources)) {
         btns.push(btn('分配资源', 'action-btn--resource', () => openResourceModal(row)))
@@ -158,6 +172,13 @@ onMounted(loadList)
         v-model:visible="showFormModal"
         :is-edit="isEdit"
         :editing-id="editingId"
+        @saved="onSaved"
+      />
+
+      <RoleUserModal
+        v-model:visible="showUserModal"
+        :role-id="userRoleId"
+        :role-name="userRoleName"
         @saved="onSaved"
       />
 
@@ -238,6 +259,8 @@ onMounted(loadList)
   color: var(--text-primary);
   background: var(--bg-glass-hover);
 }
+.action-btn--user { color: #a78bfa; }
+.action-btn--user:hover { background: rgba(167, 139, 250, 0.1); }
 .action-btn--resource { color: #60a5fa; }
 .action-btn--resource:hover { background: rgba(96, 165, 250, 0.1); }
 .action-btn--warn { color: var(--action-warn); }

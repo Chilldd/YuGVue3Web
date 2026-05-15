@@ -10,12 +10,15 @@ import {
   activateRole,
   disableRole,
   assignResources,
+  getRoleUsers,
+  assignRoleUsers,
 } from '@/api/role'
 import type {
   CreateRoleCommand,
   UpdateRoleCommand,
   GetRoleDetailResult,
 } from '@/api/role'
+import type { UserListItem } from '@/api/user'
 
 export function useRole() {
   const message = useMessage()
@@ -156,6 +159,32 @@ export function useRole() {
     }
   }
 
+  const roleUsers = ref<UserListItem[]>([])
+  const roleUsersLoading = ref(false)
+
+  async function fetchRoleUsers(roleId: string) {
+    roleUsersLoading.value = true
+    try {
+      const res = await getRoleUsers(roleId)
+      roleUsers.value = res.items || []
+    } catch {
+      roleUsers.value = []
+    } finally {
+      roleUsersLoading.value = false
+    }
+  }
+
+  async function confirmAssignRoleUsers(roleId: string, userIds: string[], onSuccess: () => void) {
+    try {
+      await assignRoleUsers({ roleId, userIds })
+      message.success('用户分配成功')
+      onSuccess()
+      return true
+    } catch {
+      return false
+    }
+  }
+
   return {
     loading,
     listData,
@@ -170,5 +199,9 @@ export function useRole() {
     getDetail,
     save,
     saveResources,
+    roleUsers,
+    roleUsersLoading,
+    fetchRoleUsers,
+    confirmAssignRoleUsers,
   }
 }

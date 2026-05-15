@@ -1,4 +1,5 @@
 import request from './request'
+import type { UserListItem } from './user'
 
 // ---- Types ----
 
@@ -106,5 +107,31 @@ export function assignResources(id: string, data: AssignResourceCommand) {
 export function removeResourceFromRole(roleId: string, resourceId: string) {
   return request.delete<void, void>(
     `/api/system/role/${roleId}/resources/${resourceId}`,
+  )
+}
+
+// ---- 角色关联用户 ----
+
+export interface GetRoleUsersResult {
+  items: UserListItem[]
+}
+
+export interface AssignRoleUsersCommand {
+  roleId: string
+  userIds: string[]
+}
+
+/** 获取角色关联的用户列表 */
+export function getRoleUsers(id: string) {
+  return request.get<GetRoleUsersResult, GetRoleUsersResult>(
+    `/api/system/role/${id}/users`,
+  )
+}
+
+/** 给角色分配用户（追加模式，已有用户跳过） */
+export function assignRoleUsers(data: AssignRoleUsersCommand) {
+  return request.post<void, void>(
+    `/api/system/role/${data.roleId}/users`,
+    data,
   )
 }
