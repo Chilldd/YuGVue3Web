@@ -50,6 +50,18 @@ const initialParentId = ref<number | null>(null)
 
 const expandedKeys = ref<(string | number)[]>([])
 
+function handleNodeClick(keys: (string | number)[]) {
+  if (keys.length > 0) {
+    const key = keys[0]
+    const idx = expandedKeys.value.indexOf(key)
+    if (idx >= 0) {
+      expandedKeys.value = [...expandedKeys.value.slice(0, idx), ...expandedKeys.value.slice(idx + 1)]
+    } else {
+      expandedKeys.value = [...expandedKeys.value, key]
+    }
+  }
+}
+
 interface ResourceTreeOption extends TreeOption {
   _resource: ResourceTreeItem
 }
@@ -120,8 +132,8 @@ function handleDelete(resource: ResourceTreeItem) {
         await deleteResource(resource.id)
         message.success('删除成功')
         loadTree()
-      } catch {
-        message.error('删除失败')
+      } catch (error: unknown) {
+        message.error(error instanceof Error ? error.message : '操作失败')
       }
     },
   })
@@ -219,8 +231,8 @@ async function handleDrop({ node, dragNode, dropPosition }: TreeDropInfo) {
         await moveResource({ id: dragRes.id, parentId: newParentId })
         message.success('移动成功')
         loadTree()
-      } catch {
-        message.error('移动失败')
+      } catch (error: unknown) {
+        message.error(error instanceof Error ? error.message : '操作失败')
       }
     },
   })
@@ -364,6 +376,8 @@ onMounted(loadTree)
             v-if="treeOptions.length > 0"
             v-model:expanded-keys="expandedKeys"
             :data="treeOptions"
+            selectable
+            :selected-keys="[]"
             :render-prefix="renderPrefix"
             :render-label="renderLabel"
             :render-suffix="renderSuffix"
@@ -372,6 +386,7 @@ onMounted(loadTree)
             :animated="true"
             :indent="20"
             @drop="handleDrop"
+            @update:selected-keys="handleNodeClick"
           />
           <n-empty v-else-if="!treeLoading" description="暂无资源数据" />
         </n-spin>

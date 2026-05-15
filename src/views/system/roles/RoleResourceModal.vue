@@ -51,14 +51,16 @@ interface ResourceTreeOption extends TreeOption {
 }
 
 function convertToTreeOptions(items: ResourceTreeItem[]): ResourceTreeOption[] {
-  return items.map(item => ({
-    key: item.id,
-    label: item.name || item.code || `#${item.id}`,
-    _resource: item,
-    children: item.children && item.children.length > 0
-      ? convertToTreeOptions(item.children)
-      : undefined,
-  }))
+  return items
+    .filter(item => String(item.id) !== '-1')
+    .map(item => ({
+      key: item.id,
+      label: item.name || item.code || `#${item.id}`,
+      _resource: item,
+      children: item.children && item.children.length > 0
+        ? convertToTreeOptions(item.children)
+        : undefined,
+    }))
 }
 
 function renderPrefix(info: { option: TreeOption }) {

@@ -5,8 +5,6 @@ import type { DataTableColumn } from 'naive-ui'
 
 defineOptions({ name: 'CrudTable' })
 
-type RowKey = string | number
-
 const props = withDefaults(defineProps<{
   columns: DataTableColumn<T>[]
   data: T[]
@@ -14,8 +12,6 @@ const props = withDefaults(defineProps<{
   total?: number
   page?: number
   pageSize?: number
-  rowKey?: (row: T) => RowKey
-  checkedRowKeys?: RowKey[]
   pageSizes?: number[]
   minHeight?: string
 }>(), {
@@ -23,8 +19,6 @@ const props = withDefaults(defineProps<{
   total: 0,
   page: 1,
   pageSize: 10,
-  rowKey: (row: T) => (row as unknown as Record<string, unknown>).id as RowKey,
-  checkedRowKeys: () => [],
   pageSizes: () => [10, 20, 50],
   minHeight: '300px',
 })
@@ -32,7 +26,6 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   'update:page': [value: number]
   'update:page-size': [value: number]
-  'update:checked-row-keys': [value: RowKey[]]
 }>()
 
 const pagination = computed(() => ({
@@ -59,13 +52,10 @@ const pagination = computed(() => ({
       :data="data as any"
       :loading="loading"
       :pagination="pagination"
-      :row-key="rowKey as any"
-      :checked-row-keys="checkedRowKeys"
       :bordered="false"
       :single-line="false"
       size="small"
       :style="{ minHeight: minHeight }"
-      @update:checked-row-keys="emit('update:checked-row-keys', $event)"
       @update:page="emit('update:page', $event)"
       @update:page-size="emit('update:page-size', $event)"
     />

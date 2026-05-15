@@ -24,8 +24,8 @@ async function handleLogin() {
     const redirect = (route.query.redirect as string) || '/dashboard'
     await router.push(redirect)
     message.success('登录成功')
-  } catch {
-    message.error('登录失败，请检查用户名和密码')
+  } catch (error: unknown) {
+    message.error(error instanceof Error ? error.message : '登录失败，请检查用户名和密码')
   } finally {
     loading.value = false
   }

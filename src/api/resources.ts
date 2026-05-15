@@ -96,7 +96,7 @@ export interface ResourceResult {
 /** 获取资源树 */
 export function getResourceTree(params?: { type?: string; status?: number }) {
   return request.get<GetResourceTreeResult, GetResourceTreeResult>(
-    '/api/management/resources/tree',
+    '/api/system/resources/tree',
     { params },
   )
 }
@@ -104,7 +104,7 @@ export function getResourceTree(params?: { type?: string; status?: number }) {
 /** 获取资源列表 */
 export function getResourceList(params?: GetResourceListParams) {
   return request.get<GetResourceListResult, GetResourceListResult>(
-    '/api/management/resources',
+    '/api/system/resources',
     { params },
   )
 }
@@ -112,14 +112,14 @@ export function getResourceList(params?: GetResourceListParams) {
 /** 获取单个资源 */
 export function getResource(id: number) {
   return request.get<ResourceDetail, ResourceDetail>(
-    `/api/management/resources/${id}`,
+    `/api/system/resources/${id}`,
   )
 }
 
 /** 创建资源 */
 export function createResource(data: CreateResourceCommand) {
   return request.post<ResourceResult, ResourceResult>(
-    '/api/management/resources',
+    '/api/system/resources',
     data,
   )
 }
@@ -127,34 +127,34 @@ export function createResource(data: CreateResourceCommand) {
 /** 更新资源 */
 export function updateResource(data: UpdateResourceCommand) {
   return request.put<ResourceResult, ResourceResult>(
-    '/api/management/resources',
+    '/api/system/resources',
     data,
   )
 }
 
 /** 删除资源 */
 export function deleteResource(id: number) {
-  return request.delete<void, void>(`/api/management/resources/${id}`)
+  return request.delete<void, void>(`/api/system/resources/${id}`)
 }
 
 /** 激活资源 */
 export function activateResource(id: number) {
   return request.post<ResourceResult, ResourceResult>(
-    `/api/management/resources/${id}/activate`,
+    `/api/system/resources/${id}/activate`,
   )
 }
 
 /** 禁用资源 */
 export function disableResource(id: number) {
   return request.post<ResourceResult, ResourceResult>(
-    `/api/management/resources/${id}/disable`,
+    `/api/system/resources/${id}/disable`,
   )
 }
 
 /** 移动资源 */
 export function moveResource(data: MoveResourceCommand) {
   return request.put<ResourceResult, ResourceResult>(
-    `/api/management/resources/${data.id}/move`,
+    `/api/system/resources/${data.id}/move`,
     data,
   )
 }

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue'
-import { darkTheme, NConfigProvider, NButton } from 'naive-ui'
+import { darkTheme, NConfigProvider, NButton, NTag } from 'naive-ui'
 import type { DataTableColumn } from 'naive-ui'
-import type { RoleListItem } from '@/api/role'
-import { useRole } from '@/composables/useRole'
+import type { UserListItem } from '@/api/user'
+import { useUser } from '@/composables/useUser'
 import CrudTable from '@/components/CrudTable.vue'
-import { usePermission } from '@/composables/usePermission'
-import RoleFormModal from './RoleFormModal.vue'
-import RoleResourceModal from './RoleResourceModal.vue'
+import UserFormModal from './UserFormModal.vue'
+import UserRoleModal from './UserRoleModal.vue'
 
 const {
   loading,
@@ -16,20 +15,15 @@ const {
   fetchListWithRetry,
   toggleStatus,
   confirmDelete,
-} = useRole()
-
-const { hasPermission } = usePermission()
+} = useUser()
 
 const page = ref(1)
 const pageSize = ref(10)
 
 const showFormModal = ref(false)
-const isEdit = ref(false)
-const editingId = ref<number | null>(null)
-
-const showResourceModal = ref(false)
-const resourceRoleId = ref<number | null>(null)
-const resourceRoleName = ref('')
+const showRoleModal = ref(false)
+const roleUserId = ref<number | null>(null)
+const roleUsername = ref('')
 
 function loadList() {
   fetchListWithRetry()
@@ -40,44 +34,28 @@ function onSaved() {
 }
 
 function openCreateModal() {
-  isEdit.value = false
-  editingId.value = null
   showFormModal.value = true
 }
 
-function openEditModal(row: RoleListItem) {
-  isEdit.value = true
-  editingId.value = row.id
-  showFormModal.value = true
+function openRoleModal(row: UserListItem) {
+  roleUserId.value = row.id
+  roleUsername.value = row.username || `#${row.id}`
+  showRoleModal.value = true
 }
 
-function openResourceModal(row: RoleListItem) {
-  resourceRoleId.value = row.id
-  resourceRoleName.value = row.name || row.code || `#${row.id}`
-  showResourceModal.value = true
-}
-
-function handleDelete(row: RoleListItem) {
+function handleDelete(row: UserListItem) {
   confirmDelete(row, loadList)
 }
 
-async function handleToggleStatus(row: RoleListItem) {
+async function handleToggleStatus(row: UserListItem) {
   const ok = await toggleStatus(row)
   if (ok) loadList()
 }
 
-const columns: DataTableColumn<RoleListItem>[] = [
+const columns: DataTableColumn<UserListItem>[] = [
   {
-    title: '名称', key: 'name', ellipsis: true, minWidth: 140,
-    render(row) { return h('span', { class: 'cell-name' }, row.name || '—') },
-  },
-  {
-    title: '编码', key: 'code', ellipsis: true, minWidth: 120,
-    render(row) { return h('span', { class: 'code-cell' }, row.code || '—') },
-  },
-  {
-    title: '描述', key: 'description', ellipsis: true, minWidth: 180,
-    render(row) { return h('span', { class: 'desc-cell' }, row.description || '—') },
+    title: '用户名', key: 'username', ellipsis: true, minWidth: 140,
+    render(row) { return h('span', { class: 'cell-name' }, row.username || '—') },
   },
   {
     title: '状态', key: 'status', width: 80,
@@ -95,23 +73,18 @@ const columns: DataTableColumn<RoleListItem>[] = [
     },
   },
   {
-    title: '操作', key: 'actions', width: 300, fixed: 'right',
+    title: '操作', key: 'actions', width: 280, fixed: 'right',
     render(row) {
       const btn = (label: string, cls: string, onClick: () => void) =>
         h('a', { class: ['action-btn', cls], onClick }, label)
       const btns = []
-      if (hasPermission('role:update')) {
-        btns.push(btn('编辑', 'action-btn--edit', () => openEditModal(row)))
+      btns.push(btn('分配角色', 'action-btn--role', () => openRoleModal(row)))
+      if ((row.status === 'Active')) {
+        btns.push(btn('禁用', 'action-btn--warn', () => handleToggleStatus(row)))
+      } else {
+        btns.push(btn('启用', 'action-btn--success', () => handleToggleStatus(row)))
       }
-      if (hasPermission('role:assignresources')) {
-        btns.push(btn('分配资源', 'action-btn--resource', () => openResourceModal(row)))
-      }
-      if ((row.status === 'Active' && hasPermission('role:disable')) || (row.status !== 'Active' && hasPermission('role:activate'))) {
-        btns.push(btn(row.status === 'Active' ? '禁用' : '启用', row.status === 'Active' ? 'action-btn--warn' : 'action-btn--success', () => handleToggleStatus(row)))
-      }
-      if (hasPermission('role:delete')) {
-        btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
-      }
+      btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
       return h('div', { class: 'action-group' }, btns)
     },
   },
@@ -122,24 +95,24 @@ onMounted(loadList)
 
 <template>
   <n-config-provider :theme="darkTheme">
-    <div class="role-page">
-      <div class="role-page__header">
+    <div class="user-page">
+      <div class="user-page__header">
         <div>
-          <h1 class="role-page__title">角色管理</h1>
-          <p class="role-page__desc">管理系统中的角色及其权限分配</p>
+          <h1 class="user-page__title">用户管理</h1>
+          <p class="user-page__desc">管理系统中的用户账号</p>
         </div>
-        <div class="role-page__actions">
+        <div class="user-page__actions">
           <n-button quaternary size="small" :loading="loading" @click="loadList">
             <template #icon>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             </template>
             刷新
           </n-button>
-          <n-button type="primary" size="small" @click="openCreateModal" v-if="hasPermission('role:create')">
+          <n-button type="primary" size="small" @click="openCreateModal">
             <template #icon>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </template>
-            新建角色
+            新建用户
           </n-button>
         </div>
       </div>
@@ -153,17 +126,15 @@ onMounted(loadList)
         :total="totalCount"
       />
 
-      <RoleFormModal
+      <UserFormModal
         v-model:visible="showFormModal"
-        :is-edit="isEdit"
-        :editing-id="editingId"
         @saved="onSaved"
       />
 
-      <RoleResourceModal
-        v-model:visible="showResourceModal"
-        :role-id="resourceRoleId"
-        :role-name="resourceRoleName"
+      <UserRoleModal
+        v-model:visible="showRoleModal"
+        :user-id="roleUserId"
+        :username="roleUsername"
         @saved="onSaved"
       />
     </div>
@@ -171,30 +142,30 @@ onMounted(loadList)
 </template>
 
 <style scoped>
-.role-page {
+.user-page {
   min-height: 100%;
   padding: 4px;
 }
-.role-page__header {
+.user-page__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
 }
-.role-page__title {
+.user-page__title {
   font-size: 26px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0 0 6px;
   letter-spacing: -0.3px;
 }
-.role-page__desc {
+.user-page__desc {
   font-size: 14px;
   color: var(--text-tertiary);
   margin: 0;
 }
-.role-page__actions {
+.user-page__actions {
   display: flex;
   gap: 10px;
   flex-shrink: 0;
@@ -202,18 +173,6 @@ onMounted(loadList)
 .cell-name {
   font-weight: 600;
   color: var(--text-primary);
-}
-.code-cell {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 12px;
-  color: var(--text-secondary);
-  background: var(--bg-glass);
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-.desc-cell {
-  font-size: 12px;
-  color: var(--text-tertiary);
 }
 .time-cell {
   font-size: 12px;
@@ -229,7 +188,6 @@ onMounted(loadList)
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--action-edit);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -237,8 +195,8 @@ onMounted(loadList)
   color: var(--text-primary);
   background: var(--bg-glass-hover);
 }
-.action-btn--resource { color: #60a5fa; }
-.action-btn--resource:hover { background: rgba(96, 165, 250, 0.1); }
+.action-btn--role { color: #60a5fa; }
+.action-btn--role:hover { background: rgba(96, 165, 250, 0.1); }
 .action-btn--warn { color: var(--action-warn); }
 .action-btn--warn:hover { background: rgba(251, 191, 36, 0.1); }
 .action-btn--success { color: var(--status-active); }
@@ -247,6 +205,6 @@ onMounted(loadList)
 .action-btn--danger:hover { background: rgba(248, 113, 113, 0.1); }
 
 @media (max-width: 768px) {
-  .role-page__header { flex-direction: column; }
+  .user-page__header { flex-direction: column; }
 }
 </style>

@@ -1,34 +1,29 @@
 import { ref } from 'vue'
 import { useMessage, useDialog } from 'naive-ui'
-import type { RoleListItem } from '@/api/role'
+import type { UserListItem } from '@/api/user'
 import {
-  getRoleList,
-  getRole,
-  createRole,
-  updateRole,
-  deleteRole,
-  activateRole,
-  disableRole,
-  assignResources,
-} from '@/api/role'
-import type {
-  CreateRoleCommand,
-  UpdateRoleCommand,
-  GetRoleDetailResult,
-} from '@/api/role'
+  getUserList,
+  getUser,
+  createUser,
+  deleteUser,
+  activateUser,
+  disableUser,
+  setUserRoles,
+} from '@/api/user'
+import type { CreateUserCommand, GetUserResult, SetUserRolesCommand } from '@/api/user'
 
-export function useRole() {
+export function useUser() {
   const message = useMessage()
   const dialog = useDialog()
 
   const loading = ref(false)
-  const listData = ref<RoleListItem[]>([])
+  const listData = ref<UserListItem[]>([])
   const totalCount = ref(0)
 
   async function fetchList() {
     loading.value = true
     try {
-      const res = await getRoleList()
+      const res = await getUserList()
       listData.value = res.items || []
       totalCount.value = res.totalCount || 0
     } catch {
@@ -38,12 +33,11 @@ export function useRole() {
     }
   }
 
-  /** 带重试的获取，最多重试 2 次 */
   async function fetchListWithRetry(retries = 2) {
     for (let i = 0; i <= retries; i++) {
       loading.value = true
       try {
-        const res = await getRoleList()
+        const res = await getUserList()
         listData.value = res.items || []
         totalCount.value = res.totalCount || 0
         return
@@ -56,20 +50,20 @@ export function useRole() {
   }
 
   async function remove(id: number) {
-    await deleteRole(id)
+    await deleteUser(id)
   }
 
   async function batchRemove(ids: (string | number)[]) {
-    await Promise.all(ids.map((id) => deleteRole(id as number)))
+    await Promise.all(ids.map((id) => deleteUser(id as number)))
   }
 
-  async function toggleStatus(row: RoleListItem) {
+  async function toggleStatus(row: UserListItem) {
     try {
       if (row.status === 'Active') {
-        await disableRole(row.id)
+        await disableUser(row.id)
         message.success('已禁用')
       } else {
-        await activateRole(row.id)
+        await activateUser(row.id)
         message.success('已启用')
       }
       return true
@@ -78,13 +72,10 @@ export function useRole() {
     }
   }
 
-  function confirmDelete(
-    row: RoleListItem,
-    onSuccess: () => void,
-  ) {
+  function confirmDelete(row: UserListItem, onSuccess: () => void) {
     dialog.warning({
       title: '确认删除',
-      content: `确定要删除角色「${row.name || row.code}」吗？此操作不可撤销。`,
+      content: `确定要删除用户「${row.username}」吗？此操作不可撤销。`,
       positiveText: '删除',
       negativeText: '取消',
       positiveButtonProps: { type: 'error' },
@@ -100,21 +91,18 @@ export function useRole() {
     })
   }
 
-  function confirmBatchDelete(
-    ids: (string | number)[],
-    onSuccess: () => void,
-  ) {
+  function confirmBatchDelete(ids: (string | number)[], onSuccess: () => void) {
     if (ids.length === 0) return
     dialog.warning({
       title: '批量删除',
-      content: `确定要删除选中的 ${ids.length} 个角色吗？`,
+      content: `确定要删除选中的 ${ids.length} 个用户吗？`,
       positiveText: '删除',
       negativeText: '取消',
       positiveButtonProps: { type: 'error' },
       onPositiveClick: async () => {
         try {
           await batchRemove(ids)
-          message.success(`已删除 ${ids.length} 个角色`)
+          message.success(`已删除 ${ids.length} 个用户`)
           onSuccess()
         } catch {
           // 错误由全局拦截器处理
@@ -123,33 +111,28 @@ export function useRole() {
     })
   }
 
-  async function getDetail(id: number): Promise<GetRoleDetailResult | null> {
+  async function getDetail(id: number): Promise<GetUserResult | null> {
     try {
-      return await getRole(id)
+      return await getUser(id)
     } catch {
       return null
     }
   }
 
-  async function save(data: CreateRoleCommand, id?: number | null): Promise<boolean> {
+  async function save(data: CreateUserCommand): Promise<boolean> {
     try {
-      if (id) {
-        await updateRole(id, { ...data, id })
-        message.success('更新成功')
-      } else {
-        await createRole(data)
-        message.success('创建成功')
-      }
+      await createUser(data)
+      message.success('创建成功')
       return true
     } catch {
       return false
     }
   }
 
-  async function saveResources(roleId: number, resourceIds: number[]): Promise<boolean> {
+  async function saveRoles(data: SetUserRolesCommand): Promise<boolean> {
     try {
-      await assignResources(roleId, { roleId, resourceIds })
-      message.success('资源分配成功')
+      await setUserRoles(data)
+      message.success('角色分配成功')
       return true
     } catch {
       return false
@@ -169,6 +152,6 @@ export function useRole() {
     confirmBatchDelete,
     getDetail,
     save,
-    saveResources,
+    saveRoles,
   }
 }
