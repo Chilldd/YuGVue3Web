@@ -147,7 +147,7 @@ function handleToggleStatus(resource: ResourceTreeItem) {
     content: `确定要${isActive ? '禁用' : '启用'}资源「${resource.name || resource.code}」吗？`,
     positiveText: isActive ? '禁用' : '启用',
     negativeText: '取消',
-    positiveButtonProps: { type: isActive ? 'warning' : 'primary' },
+    positiveButtonProps: { type: isActive ? 'warning' : 'success' },
     onPositiveClick: async () => {
       const ok = await toggleStatus(resource as Parameters<typeof toggleStatus>[0])
       if (ok) loadTree()

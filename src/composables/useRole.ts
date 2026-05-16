@@ -12,6 +12,7 @@ import {
   assignResources,
   getRoleUsers,
   assignRoleUsers,
+  removeRoleUsers,
 } from '@/api/role'
 import type {
   CreateRoleCommand,
@@ -185,6 +186,31 @@ export function useRole() {
     }
   }
 
+  function confirmRemoveRoleUsers(
+    roleId: string,
+    roleName: string,
+    userIds: string[],
+    onSuccess: () => void,
+  ) {
+    if (userIds.length === 0) return
+    dialog.warning({
+      title: '确认取消',
+      content: `确定要取消 ${userIds.length} 个用户与角色「${roleName}」的关联吗？`,
+      positiveText: '确认取消',
+      negativeText: '取消',
+      positiveButtonProps: { type: 'error' },
+      onPositiveClick: async () => {
+        try {
+          await removeRoleUsers({ roleId, userIds })
+          message.success(`已取消 ${userIds.length} 个用户的关联`)
+          onSuccess()
+        } catch {
+          // 错误由全局拦截器处理
+        }
+      },
+    })
+  }
+
   return {
     loading,
     listData,
@@ -203,5 +229,6 @@ export function useRole() {
     roleUsersLoading,
     fetchRoleUsers,
     confirmAssignRoleUsers,
+    confirmRemoveRoleUsers,
   }
 }

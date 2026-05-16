@@ -135,3 +135,16 @@ export function assignRoleUsers(data: AssignRoleUsersCommand) {
     data,
   )
 }
+
+export interface RemoveRoleUsersCommand {
+  roleId: string
+  userIds: string[]
+}
+
+/** 从角色移除用户 */
+export function removeRoleUsers(data: RemoveRoleUsersCommand) {
+  return request.delete<void, void>(
+    `/api/system/user/roles/${data.roleId}`,
+    { data: { userIds: data.userIds } },
+  )
+}

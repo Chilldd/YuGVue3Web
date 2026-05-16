@@ -19,6 +19,15 @@ export const role = {
   viewUsers: 'role:getusers',
 } as const
 
+export const user = {
+  create: 'user:create',
+  delete: 'user:delete',
+  activate: 'user:activate',
+  disable: 'user:disable',
+  resetPassword: 'user:resetpassword',
+  setroles: 'user:setroles',
+} as const
+
 export const tool = {
   syncApiResources: 'tool:syncapiresources',
 } as const

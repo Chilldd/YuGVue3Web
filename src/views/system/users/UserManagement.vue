@@ -4,6 +4,8 @@ import { darkTheme, NConfigProvider, NButton, NTag } from 'naive-ui'
 import type { DataTableColumn } from 'naive-ui'
 import type { UserListItem } from '@/api/user'
 import { useUser } from '@/composables/useUser'
+import { usePermission } from '@/composables/usePermission'
+import { user } from '@/constants/permissions'
 import CrudTable from '@/components/CrudTable.vue'
 import UserFormModal from './UserFormModal.vue'
 import UserRoleModal from './UserRoleModal.vue'
@@ -17,6 +19,8 @@ const {
   confirmDelete,
   confirmResetPassword,
 } = useUser()
+
+const { hasPermission } = usePermission()
 
 const page = ref(1)
 const pageSize = ref(10)
@@ -83,14 +87,18 @@ const columns: DataTableColumn<UserListItem>[] = [
       const btn = (label: string, cls: string, onClick: () => void) =>
         h('a', { class: ['action-btn', cls], onClick }, label)
       const btns = []
-      btns.push(btn('分配角色', 'action-btn--role', () => openRoleModal(row)))
-      if ((row.status === 'Active')) {
-        btns.push(btn('禁用', 'action-btn--warn', () => handleToggleStatus(row)))
-      } else {
-        btns.push(btn('启用', 'action-btn--success', () => handleToggleStatus(row)))
+      if (hasPermission(user.setroles)) {
+        btns.push(btn('分配角色', 'action-btn--role', () => openRoleModal(row)))
       }
-      btns.push(btn('重置密码', 'action-btn--warn', () => handleResetPassword(row)))
-      btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
+      if ((row.status === 'Active' && hasPermission(user.disable)) || (row.status !== 'Active' && hasPermission(user.activate))) {
+        btns.push(btn(row.status === 'Active' ? '禁用' : '启用', row.status === 'Active' ? 'action-btn--warn' : 'action-btn--success', () => handleToggleStatus(row)))
+      }
+      if (hasPermission(user.resetPassword)) {
+        btns.push(btn('重置密码', 'action-btn--warn', () => handleResetPassword(row)))
+      }
+      if (hasPermission(user.delete)) {
+        btns.push(btn('删除', 'action-btn--danger', () => handleDelete(row)))
+      }
       return h('div', { class: 'action-group' }, btns)
     },
   },
@@ -114,7 +122,7 @@ onMounted(loadList)
             </template>
             刷新
           </n-button>
-          <n-button type="primary" size="small" @click="openCreateModal">
+          <n-button type="primary" size="small" @click="openCreateModal" v-if="hasPermission(user.create)">
             <template #icon>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </template>

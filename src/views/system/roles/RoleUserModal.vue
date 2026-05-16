@@ -6,7 +6,7 @@ import type { UserListItem } from '@/api/user'
 import { getUserList } from '@/api/user'
 import { useRole } from '@/composables/useRole'
 
-const { roleUsers, roleUsersLoading, fetchRoleUsers, confirmAssignRoleUsers } = useRole()
+const { roleUsers, roleUsersLoading, fetchRoleUsers, confirmAssignRoleUsers, confirmRemoveRoleUsers } = useRole()
 
 const props = withDefaults(defineProps<{
   visible: boolean
@@ -24,9 +24,11 @@ const emit = defineEmits<{
 
 const allUsers = ref<UserListItem[]>([])
 const selectedNewUserIds = ref<string[]>([])
+const checkedUserIds = ref<string[]>([])
 const assigning = ref(false)
 
 const columns: DataTableColumn<UserListItem>[] = [
+  { type: 'selection' },
   {
     title: '用户名', key: 'username', ellipsis: true, minWidth: 120,
     render(row) { return h('span', { class: 'cell-name' }, row.username || '—') },
@@ -83,6 +85,23 @@ async function handleAssign() {
   }
 }
 
+function handleBatchRemove() {
+  if (!props.roleId || checkedUserIds.value.length === 0) return
+  confirmRemoveRoleUsers(
+    props.roleId,
+    props.roleName || '',
+    checkedUserIds.value,
+    () => {
+      checkedUserIds.value = []
+      fetchRoleUsers(props.roleId!)
+    },
+  )
+}
+
+function handleCheckedChange(keys: Array<string | number>) {
+  checkedUserIds.value = keys.map(String)
+}
+
 function handleClose() {
   emit('update:visible', false)
 }
@@ -90,6 +109,7 @@ function handleClose() {
 watch(() => props.visible, (v) => {
   if (v && props.roleId) {
     selectedNewUserIds.value = []
+    checkedUserIds.value = []
     fetchRoleUsers(props.roleId)
     loadAllUsers()
   }
@@ -107,17 +127,30 @@ watch(() => props.visible, (v) => {
     style="width:640px"
     @update:show="handleClose"
   >
-    <p class="role-user__hint">
-      角色「{{ roleName }}」当前关联 {{ roleUsers.length }} 个用户
-    </p>
+    <div class="role-user__toolbar">
+      <p class="role-user__hint">
+        角色「{{ roleName }}」当前关联 {{ roleUsers.length }} 个用户
+      </p>
+      <n-button
+        type="error"
+        size="small"
+        :disabled="checkedUserIds.length === 0"
+        @click="handleBatchRemove"
+      >
+        批量取消（{{ checkedUserIds.length }}）
+      </n-button>
+    </div>
 
     <n-spin :show="roleUsersLoading">
       <n-data-table
         :columns="columns"
         :data="roleUsers"
+        :row-key="(row: UserListItem) => row.id"
+        :checked-row-keys="checkedUserIds"
         :max-height="280"
         :bordered="false"
         size="small"
+        @update:checked-row-keys="handleCheckedChange"
       />
     </n-spin>
 
@@ -157,10 +190,16 @@ watch(() => props.visible, (v) => {
 </template>
 
 <style scoped>
+.role-user__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
 .role-user__hint {
   font-size: 13px;
   color: var(--text-tertiary);
-  margin: 0 0 16px;
+  margin: 0;
 }
 .role-user__assign {
   margin-top: 16px;
