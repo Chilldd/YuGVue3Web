@@ -2,7 +2,7 @@
 import { ref, reactive, watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NButton } from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'
-import type { CreateUserCommand } from '@/api/user'
+import type { CreateUserCommand } from '@/api/system/user'
 import { useUser } from '@/composables/useUser'
 
 const { save } = useUser()

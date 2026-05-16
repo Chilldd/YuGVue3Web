@@ -2,7 +2,7 @@
 import { ref, h, onMounted } from 'vue'
 import { darkTheme, NConfigProvider, NButton } from 'naive-ui'
 import type { DataTableColumn } from 'naive-ui'
-import type { RoleListItem } from '@/api/role'
+import type { RoleListItem } from '@/api/system/role'
 import { useRole } from '@/composables/useRole'
 import CrudTable from '@/components/CrudTable.vue'
 import { usePermission } from '@/composables/usePermission'

@@ -94,7 +94,8 @@ function toMenuOptions(items: MenuTreeItem[]): MenuOption[] {
 const menuOptions = computed(() => toMenuOptions(authStore.menuItems))
 
 function handleMenuUpdate(key: string) {
-  router.push(key)
+  if (!key.startsWith('/')) return
+  router.push(key).catch(() => {})
 }
 </script>
 

@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NInputNumber, NSelect, NSwitch, NSpace, NButton } from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'
-import type { ResourceListItem, CreateResourceCommand } from '@/api/resources'
+import type { ResourceListItem, CreateResourceCommand } from '@/api/system/resource'
 import { useResource } from '@/composables/useResource'
 
 const { getDetail, save: saveResource } = useResource()

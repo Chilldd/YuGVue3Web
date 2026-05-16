@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { NModal, NTransfer, NButton, NSpin, NEmpty } from 'naive-ui'
-import type { RoleListItem } from '@/api/role'
-import { getRoleList } from '@/api/role'
+import type { RoleListItem } from '@/api/system/role'
+import { getRoleList } from '@/api/system/role'
 import { useUser } from '@/composables/useUser'
 
 const { getDetail, saveRoles } = useUser()

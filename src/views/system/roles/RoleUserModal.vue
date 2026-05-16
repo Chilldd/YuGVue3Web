@@ -2,8 +2,8 @@
 import { ref, computed, h, watch } from 'vue'
 import { NModal, NDataTable, NButton, NSelect, NSpin, NSpace } from 'naive-ui'
 import type { DataTableColumn } from 'naive-ui'
-import type { UserListItem } from '@/api/user'
-import { getUserList } from '@/api/user'
+import type { UserListItem } from '@/api/system/user'
+import { getUserList } from '@/api/system/user'
 import { useRole } from '@/composables/useRole'
 
 const { roleUsers, roleUsersLoading, fetchRoleUsers, confirmAssignRoleUsers, confirmRemoveRoleUsers } = useRole()

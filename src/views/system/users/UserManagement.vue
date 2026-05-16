@@ -2,7 +2,7 @@
 import { ref, h, onMounted } from 'vue'
 import { darkTheme, NConfigProvider, NButton, NTag } from 'naive-ui'
 import type { DataTableColumn } from 'naive-ui'
-import type { UserListItem } from '@/api/user'
+import type { UserListItem } from '@/api/system/user'
 import { useUser } from '@/composables/useUser'
 import { usePermission } from '@/composables/usePermission'
 import { user } from '@/constants/permissions'

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useMessage, useDialog } from 'naive-ui'
-import type { UserListItem } from '@/api/user'
+import type { UserListItem } from '@/api/system/user'
 import {
   getUserList,
   getUser,
@@ -10,8 +10,8 @@ import {
   disableUser,
   setUserRoles,
   resetPassword,
-} from '@/api/user'
-import type { CreateUserCommand, GetUserResult, SetUserRolesCommand } from '@/api/user'
+} from '@/api/system/user'
+import type { CreateUserCommand, GetUserResult, SetUserRolesCommand } from '@/api/system/user'
 
 export function useUser() {
   const message = useMessage()

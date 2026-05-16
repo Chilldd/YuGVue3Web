@@ -2,7 +2,7 @@
 import { ref, reactive, watch } from 'vue'
 import { NModal, NForm, NFormItem, NInput, NSelect, NButton } from 'naive-ui'
 import type { FormInst, FormRules } from 'naive-ui'
-import type { CreateRoleCommand } from '@/api/role'
+import type { CreateRoleCommand } from '@/api/system/role'
 import { useRole } from '@/composables/useRole'
 
 const { getDetail, save: saveRole } = useRole()

@@ -2,8 +2,8 @@
 import { ref, watch, h } from 'vue'
 import { NModal, NTree, NButton, NSpin, NEmpty } from 'naive-ui'
 import type { TreeOption } from 'naive-ui'
-import { getResourceTree } from '@/api/resources'
-import type { ResourceTreeItem } from '@/api/resources'
+import { getResourceTree } from '@/api/system/resource'
+import type { ResourceTreeItem } from '@/api/system/resource'
 import { useRole } from '@/composables/useRole'
 
 const { getDetail, saveResources } = useRole()

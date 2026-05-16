@@ -27,8 +27,8 @@ const appStore = useAppStore()
           <AppHeader />
         </n-layout-header>
         <n-layout-content
-          :native-scrollbar="false"
-          style="padding: 24px; overflow: auto; background: #1A1A1D; height: calc(100vh - 64px);"
+          :native-scrollbar="true"
+          style="padding: 24px; background: #1A1A1D; height: calc(100vh - 64px);"
         >
           <router-view />
         </n-layout-content>

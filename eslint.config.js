@@ -22,6 +22,19 @@ export default tseslint.config(
     },
   },
   {
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        console: 'readonly',
+        Event: 'readonly',
+      },
+    },
     rules: {
       'vue/multi-word-component-names': 'off',
       '@typescript-eslint/no-explicit-any': 'off',

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useMessage, useDialog } from 'naive-ui'
-import type { RoleListItem } from '@/api/role'
+import type { RoleListItem } from '@/api/system/role'
 import {
   getRoleList,
   getRole,
@@ -13,13 +13,13 @@ import {
   getRoleUsers,
   assignRoleUsers,
   removeRoleUsers,
-} from '@/api/role'
+} from '@/api/system/role'
 import type {
   CreateRoleCommand,
   UpdateRoleCommand,
   GetRoleDetailResult,
-} from '@/api/role'
-import type { UserListItem } from '@/api/user'
+} from '@/api/system/role'
+import type { UserListItem } from '@/api/system/user'
 
 export function useRole() {
   const message = useMessage()

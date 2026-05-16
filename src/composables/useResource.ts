@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useMessage, useDialog } from 'naive-ui'
-import type { ResourceListItem, ResourceTreeItem } from '@/api/resources'
+import type { ResourceListItem, ResourceTreeItem } from '@/api/system/resource'
 import {
   getResourceList,
   getResourceTree,
@@ -10,8 +10,8 @@ import {
   deleteResource,
   activateResource,
   disableResource,
-} from '@/api/resources'
-import type { CreateResourceCommand, UpdateResourceCommand, ResourceDetail } from '@/api/resources'
+} from '@/api/system/resource'
+import type { CreateResourceCommand, UpdateResourceCommand, ResourceDetail } from '@/api/system/resource'
 
 export interface ResourceFilters {
   type: string | null
