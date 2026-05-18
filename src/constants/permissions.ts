@@ -31,3 +31,7 @@ export const user = {
 export const tool = {
   syncApiResources: 'tool:syncapiresources',
 } as const
+
+export const ai = {
+  chat: 'ai:chat',
+} as const

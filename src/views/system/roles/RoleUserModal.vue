@@ -62,7 +62,7 @@ const userSelectOptions = computed(() => {
 
 async function loadAllUsers() {
   try {
-    const res = await getUserList()
+    const res = await getUserList({ pageSize: 9999 })
     allUsers.value = res.items || []
   } catch {
     allUsers.value = []

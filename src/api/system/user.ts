@@ -1,4 +1,5 @@
 import request from '../request'
+import type { PageResult, PageParams } from '../types'
 
 // ---- Types ----
 
@@ -9,12 +10,7 @@ export interface UserListItem {
   createdAt: string
 }
 
-export interface GetUserListResult {
-  items: UserListItem[]
-  totalCount: number
-  page: number
-  pageSize: number
-}
+export type GetUserListResult = PageResult<UserListItem>
 
 export interface GetUserResult {
   id: string
@@ -44,8 +40,8 @@ export interface SetUserRolesCommand {
 // ---- API functions ----
 
 /** 获取用户列表 */
-export function getUserList() {
-  return request.get<GetUserListResult, GetUserListResult>('/api/system/user')
+export function getUserList(params?: PageParams) {
+  return request.get<GetUserListResult, GetUserListResult>('/api/system/user', { params })
 }
 
 /** 获取单个用户 */

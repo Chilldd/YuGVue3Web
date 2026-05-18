@@ -44,6 +44,12 @@ const router = createRouter({
           component: () => import('@/views/system/tools/ToolPage.vue'),
           meta: { title: '后端工具' },
         },
+        {
+          path: 'ai/chat',
+          name: 'ai-chat',
+          component: () => import('@/views/ai/Chat.vue'),
+          meta: { title: 'AI 智能对话' },
+        },
       ],
     },
     {

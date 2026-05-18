@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, h, watch, onMounted } from 'vue'
 import { darkTheme, NConfigProvider, NButton } from 'naive-ui'
 import type { DataTableColumn } from 'naive-ui'
 import type { RoleListItem } from '@/api/system/role'
@@ -38,8 +38,16 @@ const userRoleId = ref<string | null>(null)
 const userRoleName = ref('')
 
 function loadList() {
-  fetchListWithRetry()
+  fetchListWithRetry(page.value, pageSize.value)
 }
+
+watch(pageSize, () => {
+  page.value = 1
+})
+
+watch([page, pageSize], () => {
+  loadList()
+})
 
 function onSaved() {
   loadList()

@@ -12,7 +12,6 @@ import {
   CodeSlashOutline,
   CheckmarkCircleOutline,
   AlertCircleOutline,
-  HelpCircleOutline,
 } from '@vicons/ionicons5'
 import { useAuthStore } from '@/stores/auth'
 import { useStatus } from '@/composables/useStatus'
@@ -82,7 +81,7 @@ const healthIcon = computed(() => {
     case 'Healthy': return CheckmarkCircleOutline
     case 'Degraded': return AlertCircleOutline
     case 'Unhealthy': return AlertCircleOutline
-    default: return HelpCircleOutline
+    default: return AlertCircleOutline
   }
 })
 
@@ -161,51 +160,32 @@ function getServiceStatusText(status: string) {
 
 <template>
   <div class="dashboard">
-    <!-- Loading Overlay -->
-    <div v-if="loading && !serverInfo" class="loading-overlay">
+    <!-- Welcome Banner — 始终显示 -->
+    <div class="welcome-banner">
+      <div class="welcome-bg-pattern" />
+      <div class="welcome-content">
+        <div class="welcome-avatar">{{ greetingInitial }}</div>
+        <div class="welcome-text">
+          <h1 class="welcome-title">{{ greeting }}，{{ authStore.user?.username || '用户' }}</h1>
+          <p class="welcome-desc">{{ dateText }}</p>
+        </div>
+        <div class="welcome-badge" :style="{ '--badge-color': envColor }">
+          {{ envLabel }}
+        </div>
+        <div v-if="livenessStatusText" class="liveness-badge" :class="{ 'liveness-alive': liveness?.status === 'Healthy' }">
+          <span class="liveness-dot" />
+          <span>{{ livenessStatusText }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading (首次加载，有权限但无数据) -->
+    <div v-if="loading && !serverInfo && hasAccess" class="loading-overlay">
       <NSpin size="large" />
     </div>
 
-    <!-- Permission Denied -->
-    <div v-else-if="!hasAccess" class="status-blocked">
-      <div class="blocked-icon">
-        <n-icon :size="48"><HelpCircleOutline /></n-icon>
-      </div>
-      <h3>暂无访问权限</h3>
-      <p>你没有查看系统状态的权限，请联系管理员</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error && !serverInfo" class="status-error">
-      <div class="error-icon">
-        <n-icon :size="48"><AlertCircleOutline /></n-icon>
-      </div>
-      <h3>获取系统状态失败</h3>
-      <p>{{ error }}</p>
-      <button class="retry-btn" @click="fetchStatus">重试</button>
-    </div>
-
-    <!-- Dashboard Content -->
-    <template v-else>
-      <!-- Welcome Banner -->
-      <div class="welcome-banner">
-        <div class="welcome-bg-pattern" />
-        <div class="welcome-content">
-          <div class="welcome-avatar">{{ greetingInitial }}</div>
-          <div class="welcome-text">
-            <h1 class="welcome-title">{{ greeting }}，{{ authStore.user?.username || '用户' }}</h1>
-            <p class="welcome-desc">{{ dateText }}</p>
-          </div>
-          <div class="welcome-badge" :style="{ '--badge-color': envColor }">
-            {{ envLabel }}
-          </div>
-          <div v-if="livenessStatusText" class="liveness-badge" :class="{ 'liveness-alive': liveness?.status === 'Healthy' }">
-            <span class="liveness-dot" />
-            <span>{{ livenessStatusText }}</span>
-          </div>
-        </div>
-      </div>
-
+    <!-- 状态数据（有权限时展示） -->
+    <template v-else-if="hasAccess">
       <!-- Stats Cards -->
       <n-grid :cols="4" :x-gap="16" :y-gap="16" responsive="screen" :screen-s="2" :screen-m="2">
         <n-gi>
@@ -428,6 +408,7 @@ function getServiceStatusText(status: string) {
         </n-gi>
       </n-grid>
     </template>
+
   </div>
 </template>
 
@@ -445,53 +426,7 @@ function getServiceStatusText(status: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
-}
-
-/* ---- 403 ---- */
-.status-blocked,
-.status-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 12px;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.55);
-}
-.status-blocked h3,
-.status-error h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-  margin: 0;
-}
-.status-blocked p,
-.status-error p {
-  font-size: 14px;
-  margin: 0;
-}
-.blocked-icon,
-.error-icon {
-  opacity: 0.5;
-  color: #E6397C;
-}
-
-.retry-btn {
-  margin-top: 8px;
-  padding: 8px 24px;
-  border-radius: 20px;
-  border: 1px solid rgba(230, 57, 124, 0.3);
-  background: rgba(230, 57, 124, 0.1);
-  color: #E6397C;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.retry-btn:hover {
-  background: rgba(230, 57, 124, 0.2);
-  box-shadow: 0 0 20px rgba(230, 57, 124, 0.15);
+  min-height: 200px;
 }
 
 /* ---- Welcome Banner ---- */
@@ -666,7 +601,7 @@ function getServiceStatusText(status: string) {
 .health-dot.Degraded { background: #f59e0b; }
 .health-dot.Degraded::after { background: rgba(245, 158, 11, 0.3); }
 .health-dot.Unhealthy { background: #ef4444; }
-.health-dot.Unhealthy::after { background: rgba(239, 68, 68, 0.3); }
+.health-dot.Unhealthy::after { background: rgba(239, 65, 65, 0.3); }
 
 @keyframes pulseRing {
   0% { transform: scale(1); opacity: 0.6; }

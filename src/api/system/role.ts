@@ -1,5 +1,6 @@
 import request from '../request'
 import type { UserListItem } from './user'
+import type { PageResult, PageParams } from '../types'
 
 // ---- Types ----
 
@@ -33,10 +34,7 @@ export interface GetRoleDetailResult {
   updatedAt: string
 }
 
-export interface GetRoleListResult {
-  items: RoleListItem[]
-  totalCount: number
-}
+export type GetRoleListResult = PageResult<RoleListItem>
 
 export interface CreateRoleCommand {
   name: string
@@ -59,8 +57,8 @@ export interface AssignResourceCommand {
 // ---- API functions ----
 
 /** 获取角色列表 */
-export function getRoleList() {
-  return request.get<GetRoleListResult, GetRoleListResult>('/api/system/role')
+export function getRoleList(params?: PageParams) {
+  return request.get<GetRoleListResult, GetRoleListResult>('/api/system/role', { params })
 }
 
 /** 获取单个角色 */

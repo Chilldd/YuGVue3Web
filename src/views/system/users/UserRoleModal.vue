@@ -28,7 +28,7 @@ const selectedRoleIds = ref<string[]>([])
 
 async function loadRoles() {
   try {
-    const res = await getRoleList()
+    const res = await getRoleList({ pageSize: 9999 })
     roleOptions.value = (res.items || []).map((r: RoleListItem) => ({
       label: r.name || r.code || `#${r.id}`,
       value: r.id,

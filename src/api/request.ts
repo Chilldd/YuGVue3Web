@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
 import { createDiscreteApi } from 'naive-ui'
 import router from '@/router'
@@ -58,14 +58,57 @@ let isRefreshing = false
 let refreshQueue: QueueItem[] = []
 
 request.interceptors.response.use(
-  (response) => response.data,
-  async (error) => {
-    if (!error.response) {
+  // ---- 成功拦截器：解包统一响应格式 ----
+  (response) => {
+    const body = response.data
+    // 统一 API 响应格式：{ code, message, data, errors }
+    if (body && typeof body === 'object' && 'code' in body) {
+      if (body.code === 0) {
+        return body.data as unknown
+      }
+      // 业务/验证错误 → 构造 AxiosError 交给错误拦截器处理
+      throw new AxiosError(
+        body.message || '请求失败',
+        'ERR_BAD_RESPONSE',
+        response.config,
+        response.request,
+        {
+          status: 200,
+          statusText: 'OK',
+          headers: response.headers,
+          config: response.config,
+          data: body,
+        },
+      )
+    }
+    // 非统一格式（兼容旧接口），透传
+    return body
+  },
+
+  // ---- 错误拦截器 ----
+  async (error: Error) => {
+    if (!(error instanceof AxiosError) || !error.response) {
       getMessage().error('网络连接失败，请检查网络')
       return Promise.reject(error)
     }
 
     const { status, config, data } = error.response
+
+    // ---- 应用层错误（统一格式 code !== 0，HTTP 200） ----
+    if (data && typeof data === 'object' && data.code && data.code !== 0) {
+      // 登录接口错误由调用方处理，不重复提示
+      if (!(/\/auth\/login$/i).test(config?.url || '')) {
+        if (data.errors) {
+          const details = Object.entries(data.errors as Record<string, string[]>)
+            .map(([field, msgs]) => `${field}: ${msgs.join(', ')}`)
+            .join('\n')
+          getMessage().error(details || data.message || '请求参数错误')
+        } else {
+          getMessage().error(data.message || '请求失败')
+        }
+      }
+      return Promise.reject(error)
+    }
 
     // ---- 401 令牌过期 / 未授权 ----
     if (status === 401 && !config._isRetry) {
@@ -106,7 +149,11 @@ request.interceptors.response.use(
           refreshToken: refreshTokenVal,
         })
 
-        const { accessToken: newToken, refreshToken: newRefreshToken } = refreshResp.data
+        const refreshBody = refreshResp.data
+        if (!refreshBody || refreshBody.code !== 0) {
+          throw new Error(refreshBody?.message || '刷新令牌失败')
+        }
+        const { accessToken: newToken, refreshToken: newRefreshToken } = refreshBody.data
 
         localStorage.setItem('accessToken', newToken)
         localStorage.setItem('refreshToken', newRefreshToken)

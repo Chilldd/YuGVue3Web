@@ -33,6 +33,12 @@ export default tseslint.config(
         clearTimeout: 'readonly',
         console: 'readonly',
         Event: 'readonly',
+        fetch: 'readonly',
+        crypto: 'readonly',
+        AbortController: 'readonly',
+        KeyboardEvent: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
       },
     },
     rules: {

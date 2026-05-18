@@ -28,6 +28,11 @@ export function setupRouterGuard(router: Router) {
       }
     }
 
+    // 检查页面访问权限（菜单中不存在的路由无权访问，dashboard 作为兜底永远放行）
+    if (authStore.menuLoaded && to.path !== '/dashboard' && !authStore.findPageIdByRoute(to.path)) {
+      return '/dashboard'
+    }
+
     return true
   })
 

@@ -1,4 +1,5 @@
 import request from '../request'
+import type { PageResult, PageParams } from '../types'
 
 // ---- Types ----
 
@@ -25,12 +26,9 @@ export interface ResourceDetail extends ResourceListItem {
   updatedAt: string
 }
 
-export interface GetResourceListResult {
-  items: ResourceListItem[]
-  totalCount: number
-}
+export type GetResourceListResult = PageResult<ResourceListItem>
 
-export interface GetResourceListParams {
+export interface GetResourceListParams extends PageParams {
   type?: string
   httpMethod?: string
   parentId?: string

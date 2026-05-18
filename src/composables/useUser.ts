@@ -21,10 +21,10 @@ export function useUser() {
   const listData = ref<UserListItem[]>([])
   const totalCount = ref(0)
 
-  async function fetchList() {
+  async function fetchList(page = 1, pageSize = 10) {
     loading.value = true
     try {
-      const res = await getUserList()
+      const res = await getUserList({ page, pageSize })
       listData.value = res.items || []
       totalCount.value = res.totalCount || 0
     } catch {
@@ -34,11 +34,11 @@ export function useUser() {
     }
   }
 
-  async function fetchListWithRetry(retries = 2) {
+  async function fetchListWithRetry(page = 1, pageSize = 10, retries = 2) {
     for (let i = 0; i <= retries; i++) {
       loading.value = true
       try {
-        const res = await getUserList()
+        const res = await getUserList({ page, pageSize })
         listData.value = res.items || []
         totalCount.value = res.totalCount || 0
         return

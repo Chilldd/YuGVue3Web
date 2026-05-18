@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<{
   pageSize?: number
   pageSizes?: number[]
   minHeight?: string
+  remote?: boolean
 }>(), {
   loading: false,
   total: 0,
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<{
   pageSize: 10,
   pageSizes: () => [10, 20, 50],
   minHeight: '300px',
+  remote: true,
 })
 
 const emit = defineEmits<{
@@ -31,6 +33,7 @@ const emit = defineEmits<{
 const pagination = computed(() => ({
   page: props.page,
   pageSize: props.pageSize,
+  itemCount: props.total,
   showSizePicker: true,
   pageSizes: props.pageSizes,
 }))
@@ -47,18 +50,22 @@ const pagination = computed(() => ({
         <slot name="toolbar-right" />
       </div>
     </div>
-    <n-data-table
-      :columns="columns as any"
-      :data="data as any"
-      :loading="loading"
-      :pagination="pagination"
-      :bordered="false"
-      :single-line="false"
-      size="small"
-      :style="{ minHeight: minHeight }"
-      @update:page="emit('update:page', $event)"
-      @update:page-size="emit('update:page-size', $event)"
-    />
+    <Transition name="table-fade">
+      <n-data-table
+        :key="`p${page}`"
+        :columns="columns as any"
+        :data="data as any"
+        :loading="loading"
+        :remote="remote"
+        :pagination="pagination"
+        :bordered="false"
+        :single-line="false"
+        size="small"
+        :style="{ minHeight: minHeight }"
+        @update:page="emit('update:page', $event)"
+        @update:page-size="emit('update:page-size', $event)"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -96,5 +103,13 @@ const pagination = computed(() => ({
 }
 .crud-table__count strong {
   color: var(--text-secondary);
+}
+
+.table-fade-enter-active {
+  transition: all 0.2s ease;
+}
+.table-fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
 }
 </style>

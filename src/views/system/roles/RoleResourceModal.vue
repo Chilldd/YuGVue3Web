@@ -26,6 +26,7 @@ const submitting = ref(false)
 const treeLoading = ref(false)
 const treeData = ref<TreeOption[]>([])
 const checkedKeys = ref<(string | number)[]>([])
+const expandedKeys = ref<(string | number)[]>([])
 
 const TYPE_ICONS: Record<string, string> = {
   Menu: 'M4 4h16v2H4V4zm0 4h16v12H4V8z',
@@ -103,6 +104,24 @@ function renderSuffix(info: { option: TreeOption }) {
   ])
 }
 
+function handleNodeClick(option: TreeOption) {
+  return (e: MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.n-tree-node-checkbox')) return
+    const key = option.key
+    if (key === undefined) return
+    const idx = expandedKeys.value.indexOf(key)
+    if (idx >= 0) {
+      expandedKeys.value = expandedKeys.value.filter(k => k !== key)
+    } else {
+      expandedKeys.value = [...expandedKeys.value, key]
+    }
+  }
+}
+
+function getNodeProps({ option }: { option: TreeOption }) {
+  return { onClick: handleNodeClick(option) }
+}
+
 async function loadResources() {
   treeLoading.value = true
   try {
@@ -143,6 +162,7 @@ function handleClose() {
 watch(() => props.visible, (v) => {
   if (v && props.roleId) {
     checkedKeys.value = []
+    expandedKeys.value = []
     treeData.value = []
     loadResources()
     loadRoleResources(props.roleId)
@@ -172,11 +192,14 @@ watch(() => props.visible, (v) => {
           v-else
           :data="treeData"
           :checked-keys="checkedKeys"
+          :expanded-keys="expandedKeys"
+          :node-props="getNodeProps"
           :render-prefix="renderPrefix"
           :render-suffix="renderSuffix"
           checkable
           check-strategy="all"
           @update:checked-keys="checkedKeys = $event"
+          @update:expanded-keys="expandedKeys = $event"
         />
       </n-spin>
     </div>

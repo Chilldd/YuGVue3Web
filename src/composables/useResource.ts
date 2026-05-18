@@ -31,14 +31,14 @@ export function useResource() {
   const treeLoading = ref(false)
   const treeError = ref(false)
 
-  async function fetchList(filters?: ResourceFilters) {
+  async function fetchList(filters?: ResourceFilters, page = 1, pageSize = 10) {
     loading.value = true
     try {
-      const params: Record<string, unknown> = {}
+      const params: Record<string, unknown> = { page, pageSize }
       if (filters?.type) params.type = filters.type
       if (filters?.httpMethod) params.httpMethod = filters.httpMethod
       if (filters?.status) params.status = filters.status
-      const res = await getResourceList(params)
+      const res = await getResourceList(params as any)
       listData.value = res.items || []
       totalCount.value = res.totalCount || 0
     } catch {
@@ -49,15 +49,15 @@ export function useResource() {
   }
 
   /** 带重试的获取，最多重试 2 次 */
-  async function fetchListWithRetry(filters?: ResourceFilters, retries = 2) {
+  async function fetchListWithRetry(filters?: ResourceFilters, page = 1, pageSize = 10, retries = 2) {
     for (let i = 0; i <= retries; i++) {
       loading.value = true
       try {
-        const params: Record<string, unknown> = {}
+        const params: Record<string, unknown> = { page, pageSize }
         if (filters?.type) params.type = filters.type
         if (filters?.httpMethod) params.httpMethod = filters.httpMethod
         if (filters?.status) params.status = filters.status
-        const res = await getResourceList(params)
+        const res = await getResourceList(params as any)
         listData.value = res.items || []
         totalCount.value = res.totalCount || 0
         return
